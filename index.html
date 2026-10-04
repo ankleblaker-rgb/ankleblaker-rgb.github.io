@@ -1,139 +1,311 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#2f8f50">
-<title>農業日誌AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>農業日誌AI｜タイムライン試作版</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#fff;color:#26352b;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}
-.app{max-width:720px;margin:auto;padding:14px 14px 30px}
-h1{font-size:22px;color:#247a43;margin:4px 0 12px}
-.card{border:1px solid #d9e7dc;border-radius:14px;padding:14px;margin-bottom:14px;background:#fff}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.date{font-size:19px;font-weight:700}
-button{border:0;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:700}
-.green{background:#2f8f50;color:#fff}.light{background:#edf7ef;color:#247a43}
-.notice{font-size:12px;background:#f5faf6;border:1px solid #d9e7dc;border-radius:10px;padding:10px;margin-bottom:14px}
-.weather{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
-.weather div{background:#f5faf6;padding:9px;border-radius:10px}
-.weather b{display:block;font-size:12px;color:#64806d;margin-bottom:3px}
-.weather span{font-weight:700}
-.source,.hint,.original{font-size:11px;color:#718078;margin-top:8px}
-.input-title{font-weight:700;color:#247a43;margin-bottom:8px}
-textarea{width:100%;min-height:110px;border:2px solid #bcd8c4;border-radius:12px;padding:12px;font-size:16px;outline:none;resize:vertical}
-textarea:focus{border-color:#2f8f50}
-.actions{display:flex;gap:8px;margin-top:9px}.actions .green{flex:1}
-.entry{display:flex;gap:10px;margin:13px 0}
-.time{min-width:48px;font-weight:700;color:#247a43;font-size:13px;padding-top:4px}
-.entry-body{flex:1;background:#f7faf7;border-left:4px solid #62a875;border-radius:0 10px 10px 0;padding:10px}
-.tags{font-size:12px;color:#247a43;font-weight:700;margin-bottom:5px}
-.text{font-size:15px;line-height:1.55;white-space:pre-wrap}
-.delete{background:transparent;color:#b35b5b;padding:4px 6px;font-size:12px}
-.empty{text-align:center;color:#718078;padding:20px 5px}
-.install{display:none;background:#eef8f0;border:1px solid #bcd8c4;border-radius:10px;padding:10px;margin-bottom:14px;font-size:13px}
-.install button{margin-top:8px}
-@media(min-width:600px){.weather{grid-template-columns:repeat(5,1fr)}}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;color:#26352b}
+  .app{max-width:720px;margin:auto;padding:16px}
+  h1{font-size:22px;margin:4px 0 14px;color:#247a43}
+  .card{border:1px solid #d9e7dc;border-radius:14px;padding:14px;margin-bottom:14px;background:#fff}
+  .date-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .date{font-size:19px;font-weight:700}
+  button{border:0;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:700;cursor:pointer}
+  .green{background:#2f8f50;color:#fff}
+  .light{background:#edf7ef;color:#247a43}
+  .weather{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+  .weather div{background:#f5faf6;padding:10px;border-radius:10px}
+  .weather b{display:block;font-size:12px;color:#64806d;margin-bottom:3px}
+  .weather span{font-size:16px;font-weight:700}
+  .source{font-size:11px;color:#718078;margin-top:9px}
+  .entry{display:flex;gap:10px;margin:13px 0}
+  .time{min-width:48px;font-weight:700;color:#247a43;font-size:13px;padding-top:4px}
+  .entry-body{flex:1;background:#f7faf7;border-left:4px solid #62a875;border-radius:0 10px 10px 0;padding:10px}
+  .tags{font-size:12px;color:#247a43;font-weight:700;margin-bottom:5px}
+  .text{font-size:15px;line-height:1.55}
+  .original{font-size:11px;color:#78837d;margin-top:7px}
+  .empty{color:#718078;text-align:center;padding:20px 5px}
+  .input-title{font-weight:700;margin-bottom:8px;color:#247a43}
+  textarea{width:100%;min-height:105px;border:2px solid #bcd8c4;border-radius:12px;padding:12px;font-size:16px;resize:vertical;outline:none}
+  textarea:focus{border-color:#2f8f50}
+  .actions{display:flex;gap:8px;margin-top:9px}
+  .actions button:first-child{flex:1}
+  .hint{font-size:12px;color:#718078;margin-top:8px;line-height:1.5}
+  .notice{font-size:12px;background:#fff8e8;border:1px solid #f0d9a2;border-radius:10px;padding:9px;margin-bottom:14px}
+  .delete{background:transparent;color:#b35b5b;padding:4px 6px;font-size:12px}
+
+  .date-picker-btn{background:#edf7ef;color:#247a43;border:0;border-radius:10px;padding:10px 14px;font-size:17px;font-weight:800;cursor:pointer}
+  .hidden-date{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+  .history-detail{margin-top:12px;border-top:1px solid #d9e7dc;padding-top:12px}
+  .history-title{font-weight:800;color:#247a43;margin-bottom:7px}
+  @media(min-width:600px){.weather{grid-template-columns:repeat(5,1fr)}}
 </style>
 </head>
 <body>
 <div class="app">
-<h1>🌱 農業日誌AI</h1>
-<div class="notice">思いついたことを、その都度入力してください。時刻とカテゴリーは自動で記録します。</div>
+  <h1>🌱 農業日誌AI</h1>
 
-<div id="installBox" class="install">
-  <b>📱 ホーム画面から使えます</b><br>
-  下の「ホーム画面に追加」を押すと、次回からこの画面を直接開けます。
-  <br><button class="green" id="installBtn">ホーム画面に追加</button>
-</div>
+  <div class="notice">
+    思いついたことを、その都度入力してください。カテゴリーと時刻は自動で記録します。
+  </div>
 
-<div class="card">
-<div class="row"><div class="date" id="dateTitle"></div><button class="light" onclick="loadWeather()">🌤 気象更新</button></div>
-<div class="weather" id="weather">
-<div><b>天気</b><span>取得中…</span></div><div><b>最高気温</b><span>—</span></div>
-<div><b>最低気温</b><span>—</span></div><div><b>降水量</b><span>—</span></div><div><b>平均湿度</b><span>—</span></div>
-</div>
-<div class="source" id="source">気象データ取得中…</div>
-</div>
+  <div class="card">
+    <div class="date-row">
+      <button class="date-picker-btn" id="datePickerBtn" onclick="openDatePicker()">📅 <span id="selectedDateLabel"></span></button>
+      <button class="light" onclick="loadWeather()">🌤 気象更新</button>
+    </div>
+    <input id="datePicker" type="date" class="hidden-date" onchange="selectDateFromPicker(this.value)">
+    <div class="weather" id="weather">
+      <div><b>天気</b><span>取得中…</span></div>
+      <div><b>最高気温</b><span>—</span></div>
+      <div><b>最低気温</b><span>—</span></div>
+      <div><b>降水量</b><span>—</span></div>
+      <div><b>平均湿度</b><span>—</span></div>
+    </div>
+    <div class="source" id="source">気象データ取得中…</div>
+  </div>
 
-<div class="card">
-<div class="input-title">🎤 今気づいたことを入力</div>
-<textarea id="memo" placeholder="例：谷下ベンチ、アザミウマが少し増えている感じ"></textarea>
-<div class="actions"><button class="green" onclick="saveEntry()">＋ タイムラインに保存</button><button class="light" onclick="clearMemo()">クリア</button></div>
-<div class="hint">スマホのキーボードの🎤マイクを使えば音声入力できます。</div>
-</div>
+    <div class="history-detail" id="historyDetail"></div>
 
-<div class="card">
-<div class="row"><div class="date">📝 今日のタイムライン</div><button class="light" onclick="clearAll()">全削除</button></div>
-<div id="timeline"></div>
-</div>
+  <div class="card">
+    <div class="input-title">🎤 今気づいたことを入力</div>
+    <textarea id="memo" placeholder="例：谷下ベンチ、アザミウマが少し増えている感じ"></textarea>
+    <div class="actions">
+      <button class="green" onclick="saveEntry()">＋ タイムラインに保存</button>
+      <button class="light" onclick="clearMemo()">クリア</button>
+    </div>
+    <div class="hint">
+      スマホのキーボードにある🎤マイクを使えば音声入力できます。<br>
+      保存すると現在時刻とカテゴリーを自動で付けます。
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="date-row">
+      <div class="date">📝 今日のタイムライン</div>
+      <button class="light" onclick="clearAll()">今日の記録を全削除</button>
+    </div>
+    <div id="timeline"></div>
+  </div>
 </div>
 
 <script>
-const KEY="agri_diary_timeline_v3";
-const LAT=35.838,LON=140.667;
-const pad=n=>String(n).padStart(2,"0");
-const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
-const cats=[
-["播種",/播種|種まき|種をま|播いた/],["定植",/定植|植え付け|植えた|移植/],
-["収穫",/収穫|採った|刈り取/],
-["防除",/散布|防除|農薬|薬剤|ベネビア|アグリメック|ディアナ|ファインセーブ|ダブルシューター|プレオ|アニキ|サイモディス|パダン|ダントツ|コルト|ウララ|グレーシア|アディオン|ハチハチ|アドマイヤー|スミチオン/],
-["病害虫",/アザミウマ|害虫|虫|病気|病害|白化|食害|カビ|菌/],
-["気象",/雨|降雨|土砂降り|晴れ|曇り|風|強風|暑い|寒い|気温|湿度|天気/],
-["設備",/ベンチ|ハウス|換気|ポンプ|配管|設備|故障|LED|照明/],
-["栽培",/小ネギ|ネギ|生育|成長|葉|根|苗|水耕|培養液|EC|pH/],
-["作業",/作業|片付け|掃除|移動|確認|見回り|点検/]
-];
-function getAll(){return JSON.parse(localStorage.getItem(KEY)||"[]")}
-function put(a){localStorage.setItem(KEY,JSON.stringify(a))}
-function getToday(){return getAll().filter(x=>x.date===todayKey())}
-function classify(t){const c=cats.filter(x=>x[1].test(t)).map(x=>x[0]);return c.length?c:["その他"]}
-function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function render(){
- const e=getToday(),box=document.getElementById("timeline");
- if(!e.length){box.innerHTML='<div class="empty">まだ今日の記録はありません。<br>気づいたことを1つずつ残してみてください。</div>';return}
- box.innerHTML=e.map(x=>`<div class="entry"><div class="time">${x.time}</div><div class="entry-body"><div class="tags">🏷 ${x.cats.join("・")}</div><div class="text">${esc(x.text)}</div><div class="original">元の入力内容を保存</div><button class="delete" onclick="deleteEntry(${x.id})">削除</button></div></div>`).join("");
+const LAT=35.838, LON=140.667;
+const KEY="agri_timeline_v1";
+const WEATHER_KEY="agri_weather_v1";
+
+function pad(n){return String(n).padStart(2,"0")}
+function todayKey(){
+  const d=new Date();
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 }
+function loadEntries(){
+  return JSON.parse(localStorage.getItem(KEY)||"[]").filter(x=>x.date===todayKey());
+}
+function saveAll(entries){
+  const all=JSON.parse(localStorage.getItem(KEY)||"[]");
+  const others=all.filter(x=>x.date!==todayKey());
+  localStorage.setItem(KEY,JSON.stringify(others.concat(entries)));
+}
+
+function classify(text){
+  const cats=[];
+  const rules=[
+    ["播種",/播種|種まき|種をま|播いた/],
+    ["定植",/定植|植え付け|植えた|移植/],
+    ["収穫",/収穫|採った|刈り取/],
+    ["防除",/散布|防除|農薬|薬剤|ベネビア|アグリメック|ディアナ|ファインセーブ|ダブルシューター|プレオ|アニキ|サイモディス|パダン|ダントツ|コルト|ウララ|グレーシア|アディオン|ハチハチ|アドマイヤー|スミチオン/],
+    ["病害虫",/アザミウマ|害虫|虫|病気|病害|白化|食害|カビ|菌/],
+    ["気象",/雨|降雨|土砂降り|晴れ|曇り|風|強風|暑い|寒い|気温|湿度|天気/],
+    ["設備",/ベンチ|ハウス|ハウス内|換気|ポンプ|配管|設備|故障|LED|照明/],
+    ["栽培",/小ネギ|ネギ|生育|成長|葉|根|苗|EC|pH|水耕|培養液/],
+    ["作業",/作業|片付け|掃除|移動|確認|見回り|点検/]
+  ];
+  for(const [name,re] of rules) if(re.test(text)) cats.push(name);
+  return cats.length?cats:["その他"];
+}
+
 function saveEntry(){
- const m=document.getElementById("memo"),t=m.value.trim();
- if(!t){alert("記録する内容を入力してください。");return}
- const d=new Date(),a=getAll();
- a.push({id:Date.now(),date:todayKey(),time:pad(d.getHours())+":"+pad(d.getMinutes()),text:t,cats:classify(t)});
- put(a);m.value="";render();
+  const el=document.getElementById("memo");
+  const text=el.value.trim();
+  if(!text){alert("記録する内容を入力してください。");return;}
+  const now=new Date();
+  const entry={
+    id:Date.now(),
+    date:todayKey(),
+    time:pad(now.getHours())+":"+pad(now.getMinutes()),
+    text,
+    cats:classify(text)
+  };
+  const entries=loadEntries();
+  entries.push(entry);
+  entries.sort((a,b)=>a.id-b.id);
+  saveAll(entries);
+  el.value="";
+  render();
 }
-function deleteEntry(id){put(getAll().filter(x=>x.id!==id));render()}
-function clearAll(){if(confirm("今日の記録をすべて削除しますか？")){put(getAll().filter(x=>x.date!==todayKey()));render()}}
+
+function render(){
+  const box=document.getElementById("timeline");
+  const entries=loadEntries();
+  if(!entries.length){
+    box.innerHTML='<div class="empty">まだ今日の記録はありません。<br>気づいたことを1つずつ残してみてください。</div>';
+    return;
+  }
+  box.innerHTML=entries.map(e=>`
+    <div class="entry">
+      <div class="time">${e.time}</div>
+      <div class="entry-body">
+        <div class="tags">🏷 ${e.cats.join("・")}</div>
+        <div class="text">${escapeHtml(e.text)}</div>
+        <div class="original">元の音声・入力内容をそのまま保存</div>
+        <button class="delete" onclick="deleteEntry(${e.id})">削除</button>
+      </div>
+    </div>`).join("");
+}
+function deleteEntry(id){
+  if(!confirm("この記録を削除しますか？"))return;
+  saveAll(loadEntries().filter(e=>e.id!==id));
+  render();
+}
+function clearAll(){
+  if(!loadEntries().length)return;
+  if(!confirm("今日の記録をすべて削除しますか？"))return;
+  saveAll([]);
+  render();
+}
 function clearMemo(){document.getElementById("memo").value=""}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+function allEntries(){return JSON.parse(localStorage.getItem(KEY)||"[]");}
+function allWeather(){
+  const raw=JSON.parse(localStorage.getItem(WEATHER_KEY)||"[]");
+  return Array.isArray(raw)?raw:(raw&&raw.date?[raw]:[]);
+}
+function weatherLabel(code){const l={0:"快晴",1:"晴れ",2:"一部曇り",3:"曇り",45:"霧",48:"霧",51:"霧雨",53:"霧雨",55:"強い霧雨",61:"弱い雨",63:"雨",65:"強い雨",71:"雪",73:"雪",75:"強い雪",80:"にわか雨",81:"にわか雨",82:"強いにわか雨",95:"雷雨",96:"雷雨",99:"雷雨"};return l[code]||"—";}
+function dateLabel(s){const [y,m,d]=s.split("-");return `${y}年${Number(m)}月${Number(d)}日`;}
+let selectedHistoryDate=todayKey();
+function openDatePicker(){
+  const p=document.getElementById("datePicker");
+  p.value=selectedHistoryDate;
+  if(p.showPicker) p.showPicker(); else p.click();
+}
+function selectDateFromPicker(date){
+  if(!date)return;
+  selectedHistoryDate=date;
+  document.getElementById("selectedDateLabel").textContent=dateLabel(date);
+  showHistoryDate(date);
+}
+function showHistoryDate(date){
+  const box=document.getElementById("historyDetail"),es=allEntries().filter(e=>e.date===date).sort((a,b)=>(a.id||0)-(b.id||0));
+  let h=`<div class="history-title">📝 この日のタイムライン</div>`;
+  h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.text||"")}</div></div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
+  box.innerHTML=h;
+}
 
 async function loadWeather(){
- const src=document.getElementById("source");src.textContent="気象データ取得中…";
- try{
-  const date=todayKey();
-  const url=`https://api.open-meteo.com/v1/jma?latitude=${LAT}&longitude=${LON}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&hourly=relative_humidity_2m&timezone=Asia%2FTokyo&start_date=${date}&end_date=${date}`;
-  const j=await (await fetch(url)).json();
-  const h=j.hourly.relative_humidity_2m.filter(v=>v!=null),avg=h.reduce((a,b)=>a+b,0)/h.length;
-  const labels={0:"快晴",1:"晴れ",2:"一部曇り",3:"曇り",45:"霧",48:"霧",51:"弱い霧雨",53:"霧雨",55:"強い霧雨",61:"弱い雨",63:"雨",65:"強い雨",80:"にわか雨",81:"にわか雨",82:"強いにわか雨",95:"雷雨",96:"雷雨",99:"雷雨"};
-  document.getElementById("weather").innerHTML=
-  `<div><b>天気</b><span>${labels[j.daily.weather_code[0]]||"—"}</span></div>
-   <div><b>最高気温</b><span>${j.daily.temperature_2m_max[0]} ℃</span></div>
-   <div><b>最低気温</b><span>${j.daily.temperature_2m_min[0]} ℃</span></div>
-   <div><b>降水量</b><span>${j.daily.precipitation_sum[0]} mm</span></div>
-   <div><b>平均湿度</b><span>${avg.toFixed(0)} %</span></div>`;
-  src.textContent="気象データ：Open-Meteo / JMAモデル";
- }catch(e){src.textContent="気象データを取得できませんでした。"}
+  const box=document.getElementById("weather");
+  document.getElementById("source").textContent="Open-Meteo（JMAモデル）から取得中…";
+  try{
+    const date=todayKey();
+    const url=`https://api.open-meteo.com/v1/jma?latitude=${LAT}&longitude=${LON}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&hourly=weather_code,temperature_2m,precipitation,rain,relative_humidity_2m&timezone=Asia%2FTokyo&start_date=${date}&end_date=${date}`;
+    const r=await fetch(url);
+    const d=await r.json();
+
+    const labels={
+      0:"快晴",1:"晴れ",2:"一部曇り",3:"曇り",45:"霧",48:"霧",
+      51:"弱い霧雨",53:"霧雨",55:"強い霧雨",61:"弱い雨",63:"雨",
+      65:"強い雨",71:"弱い雪",73:"雪",75:"強い雪",80:"にわか雨",
+      81:"にわか雨",82:"強いにわか雨",95:"雷雨",96:"雷雨",99:"雷雨"
+    };
+
+    const hc=d.hourly.weather_code||[];
+    const hp=d.hourly.precipitation||[];
+    const hr=d.hourly.rain||[];
+    const hh=d.hourly.relative_humidity_2m||[];
+
+    // 1日の天気は「daily weather_code」だけでなく、時間帯データから判断。
+    // 晴れが大半なら「晴れ」を優先し、雨・雷雨などの重要な変化は補足する。
+    const counts={};
+    hc.forEach(c=>{ if(c!=null) counts[c]=(counts[c]||0)+1; });
+
+    const totalHours=hc.length||1;
+    const clearHours=(counts[0]||0)+(counts[1]||0);
+    const cloudyHours=(counts[2]||0)+(counts[3]||0);
+    const rainHours=hc.filter(c=>[51,53,55,61,63,65,80,81,82,95,96,99].includes(c)).length;
+    const thunderHours=hc.filter(c=>[95,96,99].includes(c)).length;
+    const snowHours=hc.filter(c=>[71,73,75].includes(c)).length;
+    const maxRain=Math.max(0,...hp.filter(v=>v!=null));
+    const totalRain=d.daily.precipitation_sum[0] ?? 0;
+
+    let mainWeather;
+    if(thunderHours>0){
+      mainWeather="雷雨あり";
+    }else if(snowHours>0 && snowHours>=2){
+      mainWeather="雪";
+    }else if(rainHours>0){
+      if(clearHours >= totalHours*0.5 && rainHours <= 4){
+        mainWeather="晴れ・一時雨";
+      }else if(clearHours > cloudyHours && clearHours > rainHours){
+        mainWeather="晴れ・雨あり";
+      }else if(rainHours >= totalHours*0.5){
+        mainWeather="雨";
+      }else{
+        mainWeather="曇り・雨あり";
+      }
+    }else if(clearHours >= totalHours*0.6){
+      mainWeather="晴れ";
+    }else if(cloudyHours >= totalHours*0.6){
+      mainWeather="曇り";
+    }else if(clearHours > cloudyHours){
+      mainWeather="晴れ・一部曇り";
+    }else{
+      mainWeather="曇り・一部晴れ";
+    }
+
+    // 日中の代表的な変化を補足（表示を長くしすぎない）
+    const notes=[];
+    if(totalRain>0) notes.push(`降雨${Number(totalRain).toFixed(1)}mm`);
+    if(maxRain>=10) notes.push("強い雨の時間あり");
+
+    const hum=hh.filter(v=>v!=null);
+    const avg=hum.length?hum.reduce((a,b)=>a+b,0)/hum.length:null;
+
+    box.innerHTML=`
+      <div><b>天気</b><span>${mainWeather}</span></div>
+      <div><b>最高気温</b><span>${d.daily.temperature_2m_max[0]} ℃</span></div>
+      <div><b>最低気温</b><span>${d.daily.temperature_2m_min[0]} ℃</span></div>
+      <div><b>降水量</b><span>${Number(totalRain).toFixed(1)} mm</span></div>
+      <div><b>平均湿度</b><span>${avg!=null?avg.toFixed(0):"—"} %</span></div>`;
+
+    const list=JSON.parse(localStorage.getItem(WEATHER_KEY)||"[]").filter(x=>x.date!==date);
+    list.push({
+      date,
+      data:d,
+      avg,
+      summary:{
+        weather:mainWeather,
+        clearHours,cloudyHours,rainHours,thunderHours,snowHours,
+        totalRain,maxRain,notes
+      }
+    });
+    localStorage.setItem(WEATHER_KEY,JSON.stringify(list));
+
+    selectedHistoryDate=date;
+    document.getElementById("selectedDateLabel").textContent=dateLabel(date);
+    showHistoryDate(date);
+    document.getElementById("source").textContent="気象データ：Open-Meteo / JMAモデル（時間帯データを考慮）";
+  }catch(e){
+    document.getElementById("source").textContent="気象データを取得できませんでした。通信状態を確認してください。";
+  }
 }
-
-let deferredPrompt=null;
-window.addEventListener("beforeinstallprompt",e=>{
- e.preventDefault();deferredPrompt=e;document.getElementById("installBox").style.display="block";
-});
-document.getElementById("installBtn").onclick=async()=>{
- if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;}
- else alert("Chrome右上の「︙」→「ホーム画面に追加」または「アプリをインストール」を選んでください。");
-};
-
-document.getElementById("dateTitle").textContent=new Date().toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric"});
-render();loadWeather();
+document.getElementById("selectedDateLabel").textContent=dateLabel(selectedHistoryDate);
+showHistoryDate(selectedHistoryDate);
+loadWeather();
 </script>
-</body></html>
+</body>
+</html>
