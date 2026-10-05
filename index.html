@@ -70,6 +70,16 @@
     <div class="history-detail" id="historyDetail"></div>
 
   <div class="card">
+    <div class="input-title">💾 データ管理</div>
+    <div class="actions">
+      <button class="light" onclick="backupData()">💾 バックアップ</button>
+      <button class="light" onclick="document.getElementById('restoreFile').click()">📥 データ復元</button>
+    </div>
+    <input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
+    <div class="hint">農業日誌と気象データを1つのファイルに保存できます。アプリ更新前のバックアップに使用してください。</div>
+  </div>
+
+  <div class="card">
     <div class="input-title">🎤 今気づいたことを入力</div>
     <textarea id="memo" placeholder="例：谷下ベンチ、アザミウマが少し増えている感じ"></textarea>
     <div class="actions">
@@ -205,6 +215,135 @@ function showHistoryDate(date){
   let h=`<div class="history-title">📝 この日のタイムライン</div>`;
   h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.text||"")}</div></div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
   box.innerHTML=h;
+}
+
+function backupData(){
+  try{
+    const timeline=JSON.parse(localStorage.getItem(KEY)||"[]");
+    const weatherRaw=JSON.parse(localStorage.getItem(WEATHER_KEY)||"[]");
+    const weather=Array.isArray(weatherRaw)?weatherRaw:(weatherRaw&&weatherRaw.date?[weatherRaw]:[]);
+    const payload={
+      app:"農業日誌AI",
+      backupFormat:"agri-diary-json",
+      version:2,
+      exportedAt:new Date().toISOString(),
+      timeline:Array.isArray(timeline)?timeline:[],
+      weather:weather
+    };
+    const json=JSON.stringify(payload,null,2);
+    if(!json || json.length<50) throw new Error("バックアップデータを作成できませんでした。");
+    const blob=new Blob([json],{type:"application/json;charset=utf-8"});
+    const d=todayKey();
+    const filename=`農業日誌AI_バックアップ_${d}.json`;
+
+    // Android/Chrome向け：まず通常のダウンロードを試す
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=filename;
+    a.style.display="none";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+
+    const kb=Math.max(1,Math.round(blob.size/1024));
+    alert(`バックアップを作成しました。\n\nファイル名：${filename}\nサイズ：約${kb}KB\n記録：${payload.timeline.length}件\n気象データ：${payload.weather.length}日分\n\n「ダウンロード」フォルダに保存されていることを確認してください。`);
+  }catch(e){
+    alert("バックアップの作成に失敗しました。\n\n"+(e&&e.message?e.message:e));
+  }
+}
+
+function restoreData(input){
+  const file=input.files&&input.files[0];
+  if(!file){
+    input.value="";
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onerror=function(){
+    alert("バックアップファイルを読み込めませんでした。");
+    input.value="";
+  };
+
+  reader.onload=function(){
+    try{
+      const text=String(reader.result||"").replace(/^\uFEFF/,"").trim();
+      if(!text) throw new Error("ファイルが空です。");
+
+      let payload=JSON.parse(text);
+
+      // 旧形式にも対応
+      if(payload && payload.data && typeof payload.data==="object"){
+        payload=payload.data;
+      }
+
+      if(!payload || typeof payload!=="object"){
+        throw new Error("JSON形式ではありません。");
+      }
+
+      // 必須項目を確認
+      const isAgriBackup =
+        payload.app==="農業日誌AI" &&
+        (Array.isArray(payload.timeline) || Array.isArray(payload.entries)) &&
+        (Array.isArray(payload.weather) || payload.weather==null);
+
+      if(!isAgriBackup){
+        throw new Error("農業日誌AIのバックアップファイルではありません。");
+      }
+
+      const timeline=Array.isArray(payload.timeline)
+        ? payload.timeline
+        : payload.entries;
+
+      const weather=Array.isArray(payload.weather)
+        ? payload.weather
+        : [];
+
+      if(!confirm(
+        `バックアップを読み込みます。\n\n`+
+        `農業日誌：${timeline.length}件\n`+
+        `気象データ：${weather.length}日分\n\n`+
+        `現在のデータをバックアップ内容に置き換えます。よろしいですか？`
+      )){
+        input.value="";
+        return;
+      }
+
+      localStorage.setItem(KEY,JSON.stringify(timeline));
+      localStorage.setItem(WEATHER_KEY,JSON.stringify(weather));
+
+      // 保存直後に読み戻して確認
+      const checkTimeline=JSON.parse(localStorage.getItem(KEY)||"[]");
+      const checkWeather=JSON.parse(localStorage.getItem(WEATHER_KEY)||"[]");
+
+      if(!Array.isArray(checkTimeline) || checkTimeline.length!==timeline.length){
+        throw new Error("農業日誌データの保存確認に失敗しました。");
+      }
+
+      render();
+      showHistoryDate(selectedHistoryDate);
+
+      alert(
+        `データを復元しました。\n\n`+
+        `農業日誌：${checkTimeline.length}件\n`+
+        `気象データ：${Array.isArray(checkWeather)?checkWeather.length:0}日分`
+      );
+
+    }catch(e){
+      alert(
+        "バックアップファイルを復元できませんでした。\n\n"+
+        (e&&e.message?e.message:"ファイル形式を確認してください。")+
+        "\n\n正しい「農業日誌AI_バックアップ_*.json」を選択してください。"
+      );
+    }finally{
+      input.value="";
+    }
+  };
+
+  reader.readAsText(file,"utf-8");
 }
 
 async function loadWeather(){
