@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>農業日誌AI｜タイムライン試作版</title>
+<title>農業日誌AI｜検索・自動タグ版</title>
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;color:#26352b}
@@ -40,6 +40,7 @@
   .hidden-date{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
   .history-detail{margin-top:12px;border-top:1px solid #d9e7dc;padding-top:12px}
   .history-title{font-weight:800;color:#247a43;margin-bottom:7px}
+  .search-box{display:flex;gap:8px;margin-top:8px}.search-box input{flex:1;border:2px solid #bcd8c4;border-radius:10px;padding:10px 12px;font-size:16px;outline:none}.search-box input:focus{border-color:#2f8f50}.search-result{margin-top:10px}.result-meta{font-size:12px;color:#718078;margin-bottom:4px}.auto-tags{font-size:12px;color:#5f7b68;margin-top:6px}.tag-chip{display:inline-block;background:#edf7ef;color:#247a43;border-radius:999px;padding:3px 7px;margin:2px 3px 0 0}
   @media(min-width:600px){.weather{grid-template-columns:repeat(5,1fr)}}
 </style>
 </head>
@@ -68,6 +69,16 @@
   </div>
 
     <div class="history-detail" id="historyDetail"></div>
+
+  <div class="card">
+    <div class="input-title">🔍 過去の日誌を検索</div>
+    <div class="search-box">
+      <input id="searchInput" type="search" placeholder="例：アザミウマ、コルト、谷下、収穫" onkeydown="if(event.key==='Enter')searchEntries()">
+      <button class="light" onclick="searchEntries()">検索</button>
+    </div>
+    <div class="hint">本文・日付・カテゴリー・自動タグから検索できます。</div>
+    <div id="searchResult" class="search-result"></div>
+  </div>
 
   <div class="card">
     <div class="input-title">💾 データ管理</div>
@@ -137,6 +148,41 @@ function classify(text){
   return cats.length?cats:["その他"];
 }
 
+function autoTags(text){
+  const rules=[
+    ["アザミウマ",/アザミウマ|スリップス|thrips/i],
+    ["コルト",/コルト/],
+    ["ベネビア",/ベネビア/],
+    ["グレーシア",/グレーシア/],
+    ["ダントツ",/ダントツ/],
+    ["収穫",/収穫|採った|刈り取/],
+    ["播種",/播種|種まき|種をま|播いた/],
+    ["定植",/定植|植え付け|植えた|移植/],
+    ["散布",/散布|防除|農薬|薬剤/],
+    ["雨",/雨|降雨|土砂降り|にわか雨/],
+    ["晴れ",/晴れ|快晴/],
+    ["曇り",/曇り|くもり/],
+    ["谷下",/谷下/],
+    ["ベンチ",/ベンチ/],
+    ["ハウス",/ハウス/],
+    ["小ネギ",/小ネギ|小ねぎ|ネギ|ねぎ/],
+    ["水耕",/水耕|培養液/],
+    ["pH",/pH/i],
+    ["EC",/EC/i],
+    ["気温",/気温|暑い|寒い/],
+    ["湿度",/湿度/],
+    ["設備",/ポンプ|配管|設備|故障|換気|LED|照明/]
+  ];
+  return rules.filter(([_,re])=>re.test(text)).map(([name])=>name);
+}
+function getTags(e){
+  return Array.isArray(e.tags)?e.tags:autoTags(e.text||"");
+}
+function tagsHtml(e){
+  const tags=getTags(e);
+  return tags.length?`<div class="auto-tags">${tags.map(t=>`<span class="tag-chip">#${escapeHtml(t)}</span>`).join("")}</div>`:"";
+}
+
 function saveEntry(){
   const el=document.getElementById("memo");
   const text=el.value.trim();
@@ -147,7 +193,8 @@ function saveEntry(){
     date:todayKey(),
     time:pad(now.getHours())+":"+pad(now.getMinutes()),
     text,
-    cats:classify(text)
+    cats:classify(text),
+    tags:autoTags(text)
   };
   const entries=loadEntries();
   entries.push(entry);
@@ -168,8 +215,9 @@ function render(){
     <div class="entry">
       <div class="time">${e.time}</div>
       <div class="entry-body">
-        <div class="tags">🏷 ${e.cats.join("・")}</div>
+        <div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div>
         <div class="text">${escapeHtml(e.text)}</div>
+        ${tagsHtml(e)}
         <div class="original">元の音声・入力内容をそのまま保存</div>
         <button class="delete" onclick="deleteEntry(${e.id})">削除</button>
       </div>
@@ -213,8 +261,21 @@ function selectDateFromPicker(date){
 function showHistoryDate(date){
   const box=document.getElementById("historyDetail"),es=allEntries().filter(e=>e.date===date).sort((a,b)=>(a.id||0)-(b.id||0));
   let h=`<div class="history-title">📝 この日のタイムライン</div>`;
-  h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.text||"")}</div></div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
+  h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.text||"")}</div>${tagsHtml(e)}</div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
   box.innerHTML=h;
+}
+
+function searchEntries(){
+  const q=document.getElementById("searchInput").value.trim().toLowerCase();
+  const box=document.getElementById("searchResult");
+  if(!q){box.innerHTML='<div class="empty">検索語を入力してください。</div>';return;}
+  const results=allEntries().filter(e=>{
+    const hay=[e.date,e.time,e.text,(e.cats||[]).join(" "),getTags(e).join(" ")].join(" ").toLowerCase();
+    return hay.includes(q);
+  }).sort((a,b)=>((b.date||"")+" "+(b.time||"")).localeCompare((a.date||"")+" "+(a.time||"")));
+  if(!results.length){box.innerHTML=`<div class="empty">「${escapeHtml(q)}」に一致する記録はありません。</div>`;return;}
+  box.innerHTML=`<div class="result-meta">${results.length}件見つかりました</div>`+
+    results.map(e=>`<div class="entry"><div class="time">${escapeHtml(e.date||"")}<br>${escapeHtml(e.time||"—")}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.text||"")}</div>${tagsHtml(e)}</div></div>`).join("");
 }
 
 function backupData(){
