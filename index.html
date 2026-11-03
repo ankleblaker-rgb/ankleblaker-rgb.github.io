@@ -80,7 +80,7 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
 <section id="home" class="view">
   <p id="workToday" class="muted"></p><h2>何を記録しますか？</h2>
   <div class="work-actions">
-  <button type="button" class="work-action work-main" onclick="showView('measure')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M8 15h8"/></svg></span><span>養液測定<small>pH・EC・水温をまとめて入力</small></span><span aria-hidden="true">→</span></button><button type="button" class="work-action work-tint" onclick="showView('record')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M8 15h8"/></svg></span><span>日誌を記録<small>作業・気づきをそのまま残す</small></span><span aria-hidden="true">→</span></button>
+  <button type="button" class="work-action work-main" onclick="showView('measure')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M8 15h8"/></svg></span><span>養液測定<small>pH・EC・水温をまとめて入力</small></span><span aria-hidden="true">→</span></button><button type="button" class="work-action work-tint" onclick="showView('record')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="15" height="18" rx="1"/><path d="M8 3v18M3 7h4M3 12h4M3 17h4M11 8h6M11 12h6M11 16h4"/></svg></span><span>日誌を記録<small>作業・気づきをそのまま残す</small></span><span aria-hidden="true">→</span></button>
   <button type="button" class="work-action work-tint" onclick="showView('history')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></span><span>過去の日誌を探す<small>日付・キーワードから確認</small></span><span aria-hidden="true">→</span></button>
   
   </div>
@@ -643,6 +643,7 @@ function openMeasurementHistory(){showView('history');}
 resetMeasurements(false);
 </script></body>
 </html>
+
 
 
 
