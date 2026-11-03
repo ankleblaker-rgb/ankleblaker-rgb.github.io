@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>農業日誌AI｜作業ボタン優先</title>
+<title>農業日誌AI｜棟別計測・日誌</title>
 <style>
   *{box-sizing:border-box}
   body{margin:0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;color:#26352b}
@@ -67,16 +67,22 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
 @media(max-width:400px){header{padding:16px 12px}header h1,.app-brand h1{font-size:18px}header button{font-size:12px;padding:8px}.app{padding:12px}.work-action{font-size:18px;padding:18px 12px;gap:10px}.date-picker-btn{font-size:16px}.search-box{gap:6px}}
 @media(prefers-reduced-motion:no-preference){button{transition:background-color .15s}button:hover{filter:brightness(.97)}}
 </style>
-</head>
+<style>
+.measure-house{min-width:0;border:1px solid var(--line);border-radius:4px;margin:14px 0;padding:14px}.measure-house legend{font-size:18px;font-weight:700;color:var(--green);padding:0 6px}
+.measure-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.measure-grid label,.measure-datetime label{display:block;font-weight:700;font-size:14px;min-width:0}
+.measure-grid small{font-weight:400;font-size:11px}.measure-grid input,.measure-datetime input{display:block;width:100%;min-width:0;max-width:100%;min-height:46px;margin-top:6px;padding:10px 6px;border:1px solid #b9cdbf;border-radius:4px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.measure-datetime{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.text{white-space:pre-wrap}.measure-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}.measure-table th,.measure-table td{padding:7px 4px;text-align:left;border-bottom:1px solid var(--line)}.measure-table th{color:#126c3e;font-weight:700}.measure-edit{margin:6px 0}.measure-house:focus-within{border-color:var(--green)}
+@media(max-width:360px){.measure-house{padding:10px 8px}.measure-grid{gap:6px}.measure-grid label{font-size:12px}}
+</style></head>
 <body>
 <header><div class="app-brand"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11M12 13C4 14 2 9 3 4c6-1 10 3 9 9zM12 10c0-6 4-8 9-7 0 6-3 9-9 9"/></svg><div><h1>農業日誌AI</h1><small>日々の作業・気づきを記録</small></div></div><button class="light" onclick="showView('settings')">データ管理</button></header>
 <main class="app">
 <section id="home" class="view">
   <p id="workToday" class="muted"></p><h2>何を記録しますか？</h2>
   <div class="work-actions">
-  <button type="button" class="work-action work-main" onclick="showView('record')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4H4v16h16v-8M10 14l1-5 8-8 4 4-8 8z"/></svg></span><span>日誌を記録<small>気づいたことを、そのまま残す</small></span><span aria-hidden="true">→</span></button>
+  <button type="button" class="work-action work-main" onclick="showView('measure')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M8 15h8"/></svg></span><span>1〜4棟の計測を記録<small>pH・EC・水温をまとめて入力</small></span><span aria-hidden="true">→</span></button><button type="button" class="work-action work-tint" onclick="showView('record')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M8 15h8"/></svg></span><span>日誌を記録<small>作業・気づきをそのまま残す</small></span><span aria-hidden="true">→</span></button>
   <button type="button" class="work-action work-tint" onclick="showView('history')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></span><span>過去の日誌を探す<small>日付・キーワードから確認</small></span><span aria-hidden="true">→</span></button>
-  <button type="button" class="work-action " onclick="showView('today')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><span>今日の記録を見る<small>作業や気づきを振り返る</small></span><span aria-hidden="true">→</span></button>
+  
   </div>
   <div class="work-last"><span class="muted">今日の記録</span><p id="todaySummary"></p><button class="light" onclick="showView('today')">タイムラインを見る →</button></div>
   <details class="card" open><summary>今日の気象</summary>
@@ -85,6 +91,21 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
   <div><b>天気</b><span>取得中…</span></div><div><b>最高気温</b><span>—</span></div><div><b>最低気温</b><span>—</span></div><div><b>降水量</b><span>—</span></div><div><b>平均湿度</b><span>—</span></div>
   </div><div class="source" id="source" role="status"></div></details>
 </section>
+<section id="measure" class="view" hidden>
+<button class="back" type="button" onclick="showView('home')">← ホーム</button>
+<h2 id="measureHeading">1〜4棟の計測を記録</h2>
+<p class="hint">測った値を入力してください。未計測の欄は空欄のまま保存できます。ECの単位はmS/cmです。</p>
+<form id="measureForm" onsubmit="event.preventDefault();saveMeasurements()">
+<div class="measure-datetime"><label for="measureDate">計測日<input id="measureDate" type="date" required></label><label for="measureTime">計測時刻<input id="measureTime" type="time" required></label></div>
+<fieldset class="measure-house"><legend>1棟目</legend><div class="measure-grid"><label for="ph1">pH<input id="ph1" type="number" inputmode="decimal" min="0" max="14" step="any" placeholder="例：6.2"></label><label for="ec1">EC <small>mS/cm</small><input id="ec1" type="number" inputmode="decimal" min="0" step="any" placeholder="例：1.5"></label><label for="temp1">水温 <small>℃</small><input id="temp1" type="number" inputmode="decimal" step="any" placeholder="例：20.5"></label></div></fieldset>
+<fieldset class="measure-house"><legend>2棟目</legend><div class="measure-grid"><label for="ph2">pH<input id="ph2" type="number" inputmode="decimal" min="0" max="14" step="any" placeholder="例：6.2"></label><label for="ec2">EC <small>mS/cm</small><input id="ec2" type="number" inputmode="decimal" min="0" step="any" placeholder="例：1.5"></label><label for="temp2">水温 <small>℃</small><input id="temp2" type="number" inputmode="decimal" step="any" placeholder="例：20.5"></label></div></fieldset>
+<fieldset class="measure-house"><legend>3棟目</legend><div class="measure-grid"><label for="ph3">pH<input id="ph3" type="number" inputmode="decimal" min="0" max="14" step="any" placeholder="例：6.2"></label><label for="ec3">EC <small>mS/cm</small><input id="ec3" type="number" inputmode="decimal" min="0" step="any" placeholder="例：1.5"></label><label for="temp3">水温 <small>℃</small><input id="temp3" type="number" inputmode="decimal" step="any" placeholder="例：20.5"></label></div></fieldset>
+<fieldset class="measure-house"><legend>4棟目</legend><div class="measure-grid"><label for="ph4">pH<input id="ph4" type="number" inputmode="decimal" min="0" max="14" step="any" placeholder="例：6.2"></label><label for="ec4">EC <small>mS/cm</small><input id="ec4" type="number" inputmode="decimal" min="0" step="any" placeholder="例：1.5"></label><label for="temp4">水温 <small>℃</small><input id="temp4" type="number" inputmode="decimal" step="any" placeholder="例：20.5"></label></div></fieldset>
+<label class="input-title" for="measureMemo">計測メモ（任意）</label><textarea id="measureMemo" placeholder="培養液の補充・調整、気づいたことなど"></textarea>
+<div class="actions"><button class="green" id="measureSave" type="submit">計測値を保存する</button><button class="light" type="button" onclick="resetMeasurements(true)">入力をクリア</button></div>
+<p id="measureStatus" class="hint" role="status" aria-live="polite"></p>
+<button class="light" type="button" onclick="openMeasurementHistory()">保存した計測値を見る →</button>
+</form></section>
 <section id="record" class="view" hidden>
   <button class="back" onclick="showView('home')">← ホーム</button><h2>日誌を記録</h2>
   <div class="card"><label class="input-title" for="memo">今気づいたことを入力</label>
@@ -115,7 +136,7 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
   <div class="settings-actions"><button class="light" onclick="backupData()">全データをバックアップ（JSON）</button><button class="light" onclick="document.getElementById('restoreFile').click()">バックアップから復元</button></div>
   <input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
   <p class="hint">データはこのブラウザに保存されます。定期的にバックアップしてください。</p></div>
-  <p class="muted">農業日誌AI・作業ボタン優先デザイン</p>
+  <p class="muted">農業日誌AI・1〜4棟の計測対応</p>
 </section>
 </main>
 <nav id="nav" aria-label="メインメニュー">
@@ -230,9 +251,9 @@ function render(){
       <div class="time">${e.time}</div>
       <div class="entry-body">
         <div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div>
-        <div class="text">${escapeHtml(e.text)}</div>
-        ${tagsHtml(e)}
-        <div class="original">元の音声・入力内容をそのまま保存</div>
+        <div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text)}</div>
+        ${measurementHtml(e)}${tagsHtml(e)}
+        <div class="original">${e.type==="measurement"?"棟別の計測値として保存":"元の音声・入力内容をそのまま保存"}</div>
         <button class="delete" onclick="deleteEntry(${e.id})">削除</button>
       </div>
     </div>`).join("");
@@ -275,7 +296,7 @@ function selectDateFromPicker(date){
 function showHistoryDate(date){
   const box=document.getElementById("historyDetail"),es=allEntries().filter(e=>e.date===date).sort((a,b)=>(a.id||0)-(b.id||0));
   let h=`<div class="history-title">📝 この日のタイムライン</div>`;
-  h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.text||"")}</div>${tagsHtml(e)}</div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
+  h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text||"")}</div>${measurementHtml(e)}${tagsHtml(e)}</div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
   box.innerHTML=h;
 }
 
@@ -289,7 +310,7 @@ function searchEntries(){
   }).sort((a,b)=>((b.date||"")+" "+(b.time||"")).localeCompare((a.date||"")+" "+(a.time||"")));
   if(!results.length){box.innerHTML=`<div class="empty">「${escapeHtml(q)}」に一致する記録はありません。</div>`;return;}
   box.innerHTML=`<div class="result-meta">${results.length}件見つかりました</div>`+
-    results.map(e=>`<div class="entry"><div class="time">${escapeHtml(e.date||"")}<br>${escapeHtml(e.time||"—")}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.text||"")}</div>${tagsHtml(e)}</div></div>`).join("");
+    results.map(e=>`<div class="entry"><div class="time">${escapeHtml(e.date||"")}<br>${escapeHtml(e.time||"—")}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text||"")}</div>${measurementHtml(e)}${tagsHtml(e)}</div></div>`).join("");
 }
 
 function backupData(){
@@ -300,7 +321,7 @@ function backupData(){
     const payload={
       app:"農業日誌AI",
       backupFormat:"agri-diary-json",
-      version:2,
+      version:3,
       exportedAt:new Date().toISOString(),
       timeline:Array.isArray(timeline)?timeline:[],
       weather:weather
@@ -529,7 +550,7 @@ function showView(name){
  if(!target||!target.classList.contains('view'))return;
  document.querySelectorAll('.view').forEach(el=>el.hidden=el!==target);
  document.querySelectorAll('#nav button').forEach(el=>{
-   if(el.dataset.view===(['record','today'].includes(name)?'home':name))el.setAttribute('aria-current','page');
+   if(el.dataset.view===(['measure','record','today'].includes(name)?'home':name))el.setAttribute('aria-current','page');
    else el.removeAttribute('aria-current');
  });
  if(name==='today')render();
@@ -544,6 +565,83 @@ render();
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{
  document.body.style.paddingBottom=(document.getElementById('nav').getBoundingClientRect().height+24)+'px';
 }).observe(document.getElementById('nav'));
+</script><script>
+let measurementEditId=null;
+function resetMeasurements(ask){
+ if(ask&&!confirm('入力中の計測値をクリアしますか？'))return;
+ measurementEditId=null;
+ for(let n=1;n<=4;n++)for(const f of ['ph','ec','temp'])document.getElementById(f+n).value='';
+ const now=new Date();
+ document.getElementById('measureDate').value=todayKey();
+ document.getElementById('measureTime').value=pad(now.getHours())+':'+pad(now.getMinutes());
+ document.getElementById('measureMemo').value='';
+ document.getElementById('measureHeading').textContent='1〜4棟の計測を記録';
+ document.getElementById('measureSave').textContent='計測値を保存する';
+ document.getElementById('measureStatus').textContent='';
+}
+function measurementHtml(e){
+ if(e.type!=='measurement'||!Array.isArray(e.measurements))return '';
+ const value=v=>v==null?'—':escapeHtml(String(v));
+ return '<table class="measure-table"><caption>棟別の計測値</caption><thead><tr><th scope="col">棟</th><th scope="col">pH</th><th scope="col">EC<br>mS/cm</th><th scope="col">水温<br>℃</th></tr></thead><tbody>'+e.measurements.map(m=>'<tr><th scope="row">'+value(m.house)+'棟目</th><td>'+value(m.ph)+'</td><td>'+value(m.ec)+'</td><td>'+value(m.waterTemp)+'</td></tr>').join('')+'</tbody></table><button type="button" class="light measure-edit" onclick="editMeasurement('+Number(e.id)+')">計測値を修正</button>';
+}
+function saveMeasurements(){
+ const status=document.getElementById('measureStatus');
+ try{
+ const date=document.getElementById('measureDate').value,time=document.getElementById('measureTime').value;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{2}:\d{2}$/.test(time))throw Error('計測日と計測時刻を入力してください。');
+ const measurements=[];
+ for(let n=1;n<=4;n++){
+ const row={house:n};
+ for(const [field,key] of [['ph','ph'],['ec','ec'],['temp','waterTemp']]){
+ const input=document.getElementById(field+n),raw=input.value.trim();
+ if(input.validity&&input.validity.badInput)throw Error(n+'棟目の数値を確認してください。');
+ row[key]=raw===''?null:Number(raw);
+ if(raw!==''&&!Number.isFinite(row[key]))throw Error(n+'棟目の数値を確認してください。');
+ }
+ if(row.ph!==null&&(row.ph<0||row.ph>14))throw Error(n+'棟目のpHは0〜14で入力してください。');
+ if(row.ec!==null&&row.ec<0)throw Error(n+'棟目のECは0以上で入力してください。');
+ if([row.ph,row.ec,row.waterTemp].some(v=>v!==null))measurements.push(row);
+ }
+ if(!measurements.length)throw Error('少なくとも1つの計測値を入力してください。');
+ const memo=document.getElementById('measureMemo').value.trim(),all=allEntries();
+ const index=measurementEditId===null?-1:all.findIndex(e=>e.id===measurementEditId);
+ if(measurementEditId!==null&&index<0)throw Error('修正対象の記録が見つかりません。履歴を確認してください。');
+ const id=index<0?all.reduce((max,e)=>Math.max(max,Number(e.id)||0),Date.now())+1:measurementEditId;
+ const text=measurements.map(m=>m.house+'棟目：pH '+(m.ph??'未計測')+' / EC '+(m.ec??'未計測')+' mS/cm / 水温 '+(m.waterTemp??'未計測')+' ℃').join('\n')+(memo?'\nメモ：'+memo:'');
+ const entry={...(index<0?{}:all[index]),id,date,time,type:'measurement',measurements,memo,text,cats:['栽培','計測'],tags:['計測','pH','EC','水温',...measurements.map(m=>m.house+'棟目')]};
+ if(index<0)all.push(entry);else all[index]=entry;
+ localStorage.setItem(KEY,JSON.stringify(all));
+ const edited=index>=0;
+ resetMeasurements(false);
+ selectedHistoryDate=date;
+ document.getElementById('selectedDateLabel').textContent=dateLabel(date);
+ showHistoryDate(date);render();updateTodaySummary();
+ if(document.getElementById('searchInput').value.trim())searchEntries();
+ status.textContent=(edited?'計測値を修正しました。':'計測値を保存しました。')+dateLabel(date)+' '+time+'・'+measurements.length+'棟分。';
+ }catch(error){status.textContent='保存できません：'+error.message;}
+}
+function editMeasurement(id){
+ const e=allEntries().find(e=>e.id===id&&e.type==='measurement');
+ if(!e){alert('計測記録が見つかりません。');return;}
+ const hasDraft=document.getElementById('measureMemo').value.trim()||[1,2,3,4].some(n=>['ph','ec','temp'].some(f=>document.getElementById(f+n).value!==''));
+ if(hasDraft&&!confirm('計測欄の入力内容を、この記録の内容に置き換えますか？'))return;
+ resetMeasurements(false);measurementEditId=id;
+ document.getElementById('measureDate').value=e.date;
+ document.getElementById('measureTime').value=e.time;
+ document.getElementById('measureMemo').value=e.memo||'';
+ for(const m of e.measurements||[]){
+ if(![1,2,3,4].includes(m.house))continue;
+ document.getElementById('ph'+m.house).value=m.ph??'';
+ document.getElementById('ec'+m.house).value=m.ec??'';
+ document.getElementById('temp'+m.house).value=m.waterTemp??'';
+ }
+ document.getElementById('measureHeading').textContent='計測値を修正';
+ document.getElementById('measureSave').textContent='修正内容を保存する';
+ showView('measure');
+}
+function openMeasurementHistory(){showView('history');}
+resetMeasurements(false);
 </script></body>
 </html>
+
 
