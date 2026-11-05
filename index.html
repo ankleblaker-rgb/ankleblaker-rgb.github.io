@@ -73,9 +73,9 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
 .measure-grid small{font-weight:400;font-size:11px}.measure-grid input,.measure-datetime input{display:block;width:100%;min-width:0;max-width:100%;min-height:46px;margin-top:6px;padding:10px 6px;border:1px solid #b9cdbf;border-radius:4px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
 .measure-datetime{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.text{white-space:pre-wrap}.measure-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}.measure-table th,.measure-table td{padding:7px 4px;text-align:left;border-bottom:1px solid var(--line)}.measure-table th{color:#126c3e;font-weight:700}.measure-edit{margin:6px 0}.measure-house:focus-within{border-color:var(--green)}
 @media(max-width:360px){.measure-house{padding:10px 8px}.measure-grid{gap:6px}.measure-grid label{font-size:12px}}
-</style></head>
+</style><style>.env-header-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.env-sync-actions{display:flex;flex-wrap:wrap;gap:8px}#envSyncStatus{font-weight:700;color:#126c3e}#envConflict pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}#envConflict[hidden]{display:none!important}header{flex-wrap:wrap}.env-header-actions button{font-size:12px;padding:8px}#envSyncSettings{scroll-margin-top:12px}</style></head>
 <body>
-<header><div class="app-brand"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11M12 13C4 14 2 9 3 4c6-1 10 3 9 9zM12 10c0-6 4-8 9-7 0 6-3 9-9 9"/></svg><div><h1>農業日誌AI/養液管理</h1><small>日々の作業・気づきを記録</small></div></div><button class="light" onclick="showView('settings')">データ管理</button></header>
+<header><div class="app-brand"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11M12 13C4 14 2 9 3 4c6-1 10 3 9 9zM12 10c0-6 4-8 9-7 0 6-3 9-9 9"/></svg><div><h1>農業日誌AI/養液管理</h1><small>日々の作業・気づきを記録</small></div></div><div class="env-header-actions"><button id="envSyncButton" class="light" type="button" onclick="showView('settings')">端末保存</button><button class="light" onclick="showView('settings')">データ管理</button></div></header>
 <main class="app">
 <section id="home" class="view">
   <p id="workToday" class="muted"></p><h2>何を記録しますか？</h2>
@@ -127,16 +127,16 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
   <div class="hint">本文・日付・カテゴリー・自動タグから検索できます。</div><div id="searchResult" class="search-result" aria-live="polite"></div></div>
   <div class="card"><div class="input-title">日付で探す</div><button class="date-picker-btn" id="datePickerBtn" onclick="openDatePicker()"><span id="selectedDateLabel"></span> ▾</button>
   <input id="datePicker" type="date" class="hidden-date" aria-label="履歴の日付" onchange="selectDateFromPicker(this.value)">
-  <div class="history-detail" id="historyDetail"></div></div>
+  <div class="history-detail"><h3>この日の気象</h3><div id="historyWeather" class="weather"></div><p id="historyWeatherSource" class="source" role="status"></p><button class="light" type="button" onclick="ensureWeatherDay(selectedHistoryDate,true)">この日の気象を更新</button></div><div class="history-detail" id="historyDetail"></div></div>
 </section>
 <section id="settings" class="view" hidden>
-  <h2>バックアップ・設定</h2>
+  <h2>バックアップ・設定</h2><div class="card" id="envSyncSettings"><h3>スマホ・PCの共有保存</h3><p id="envSyncStatus" role="status">端末内に保存中：共有プログラムを準備しています。</p><p id="envSyncDetail" class="hint">養液測定・日誌・気象を、ほかのアプリと同じGoogleアカウントで共有します。以前この端末に保存した記録も、ログイン後に共有へ追加します。</p><div class="env-sync-actions"><button id="envLogin" class="green" type="button">Googleでログイン</button><button id="envLogout" class="light" type="button" hidden>ログアウト</button><button id="envRetry" class="light" type="button" onclick="location.reload()">共有を再確認</button></div><details id="envConflict" hidden><summary>別端末の変更を確認</summary><p class="hint">同じ記録を両方の端末で変更しています。保存する内容を選んでください。</p><h3>この端末の入力</h3><pre id="envConflictLocal"></pre><h3>共有済みの内容</h3><pre id="envConflictRemote"></pre><button id="envKeepLocal" class="light" type="button">この端末の内容を共有する</button><button id="envKeepRemote" class="light" type="button">共有済みの内容を使う</button></details></div>
   <div class="card"><h3>データのバックアップ・復元</h3>
   <p class="hint">農業日誌と気象データを1つのファイルに保存できます。</p>
   <div class="settings-actions"><button class="light" onclick="backupData()">全データをバックアップ（JSON）</button><button class="light" onclick="document.getElementById('restoreFile').click()">バックアップから復元</button></div>
   <input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
-  <p class="hint">データはこのブラウザに保存されます。定期的にバックアップしてください。</p></div>
-  <p class="muted">農業日誌AI・1〜4棟の計測対応</p>
+  <p class="hint">記録はこの端末にも保存します。「共有保存済み」を確認するとPC・スマホで共有できます。未共有の変更は通信復帰後に送信します。</p></div>
+  <p class="muted">農業日誌AI・養液／日誌／気象共有版 4.0（2026-11-05）</p>
 </section>
 </main>
 <nav id="nav" aria-label="メインメニュー">
@@ -145,6 +145,45 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
 <button data-view="settings" onclick="showView('settings')"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="white"/><circle cx="16" cy="12" r="2" fill="white"/><circle cx="9" cy="18" r="2" fill="white"/></svg>設定</button>
 </nav>
 
+<script id="environment-store">
+// Environment records use independent cloud documents. The browser queue survives reloads.
+window.EnvCore=(()=>{
+ const clone=x=>JSON.parse(JSON.stringify(x));
+ const canonical=x=>JSON.stringify(x,(_k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
+ function hash(s){let a=2166136261,b=3339675911;for(let i=0;i<s.length;i++){a=Math.imul(a^s.charCodeAt(i),16777619);b=Math.imul(b^s.charCodeAt(i),2246822519)}return (a>>>0).toString(16).padStart(8,'0')+(b>>>0).toString(16).padStart(8,'0')}
+ const today=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo'}).format(new Date());
+ function validDay(s){if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+'T00:00:00Z');return Number.isFinite(+d)&&d.toISOString().slice(0,10)===s}
+ function validEntry(e){return !!e&&typeof e==='object'&&!Array.isArray(e)&&typeof e.id==='string'&&/^env_[A-Za-z0-9_-]{1,120}$/.test(e.id)&&validDay(e.date)&&typeof e.time==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(e.time)&&typeof e.text==='string'&&e.text.length<=20000&&Array.isArray(e.cats)&&e.cats.every(s=>typeof s==='string')&&Array.isArray(e.tags)&&e.tags.every(s=>typeof s==='string')&&(e.type!=='measurement'||(Array.isArray(e.measurements)&&e.measurements.length>0&&e.measurements.length<=4&&new Set(e.measurements.map(m=>m.house)).size===e.measurements.length&&e.measurements.every(m=>[1,2,3,4].includes(m.house)&&['ph','ec','waterTemp'].every(k=>m[k]===null||typeof m[k]==='number'&&Number.isFinite(m[k]))&&[m.ph,m.ec,m.waterTemp].some(v=>v!==null)&&(m.ph===null||m.ph>=0&&m.ph<=14)&&(m.ec===null||m.ec>=0))))}
+ function normalizeEntries(list){if(!Array.isArray(list))throw Error('日誌データの形式を確認してください');const map=new Map();for(const original of list){const e=clone(original);e.time=e.time||'00:00';e.text=String(e.text??e.memo??'');e.cats=Array.isArray(e.cats)?e.cats:['その他'];e.tags=Array.isArray(e.tags)?e.tags:[];if(typeof e.id!=='string'||!/^env_[A-Za-z0-9_-]{1,120}$/.test(e.id))e.id='env_legacy_'+hash(canonical(e));if(!validEntry(e))throw Error('日誌・計測記録の日付や計測値を確認してください');if(map.has(e.id)&&canonical(map.get(e.id))!==canonical(e))throw Error('同じIDの異なる記録があります');map.set(e.id,e)}return [...map.values()]}
+ function compactWeather(w){if(!w||!validDay(w.date))throw Error('気象の日付が不正です');const daily=w.data?.daily||{};const take=k=>Array.isArray(daily[k])?daily[k][0]:null;const x={date:w.date,data:{daily:{time:[w.date],weather_code:[take('weather_code')],temperature_2m_max:[take('temperature_2m_max')],temperature_2m_min:[take('temperature_2m_min')],precipitation_sum:[take('precipitation_sum')]}},avg:w.avg??null,summary:clone(w.summary||{}),source:w.source||'Open-Meteo（保存済みデータ）',fetchedAt:w.fetchedAt||'',complete:!!w.complete};if(new TextEncoder().encode(canonical(x)).length>100000)throw Error('気象データが大きすぎます');return x}
+ function validWeather(w){try{return canonical(compactWeather(w))===canonical(w)}catch{return false}}
+ function validValue(kind,id,value){if(value===null)return true;return kind==='entries'?validEntry(value)&&value.id===id:kind==='weather'&&validWeather(value)&&value.date===id}
+ function applyRemote(current,op){const before=current?.deleted?null:current?.value??null,version=current?.revision||0;if(!['entries','weather'].includes(op.kind)||!validValue(op.kind,op.id,op.after))throw Error('共有データの形式が不正です');if(canonical(before)===canonical(op.after))return {value:before,deleted:before===null,revision:version,unchanged:true};if(op.kind==='weather'&&before&&op.after){const score=w=>(w.complete?'1':'0')+(w.fetchedAt||'');if(score(before)>score(op.after))return {value:before,deleted:false,revision:version,unchanged:true}}else if(canonical(before)!==canonical(op.before)){const error=Error('別端末で同じ記録が変更されました');error.code='env/conflict';error.current=current;throw error}return {value:clone(op.after),deleted:op.after===null,revision:version+1}}
+ function project(kind,state){const map=new Map(Object.entries(state.remote[kind]||{}).filter(([,r])=>!r.deleted).map(([id,r])=>[id,r.value]));for(const p of state.pending)if(p.kind===kind){if(p.after===null)map.delete(p.id);else map.set(p.id,p.after)}return [...map.values()]}
+ return {clone,canonical,hash,today,validDay,validEntry,normalizeEntries,compactWeather,validWeather,validValue,applyRemote,project};
+})();
+window.EnvStore=(()=>{
+ const C=EnvCore,K='agri_timeline_v1',W='agri_weather_v1',S='agri_environment_sync_v1',B='agri_environment_before_cloud_v1';
+ let startupError=null;
+ function read(){const value=JSON.parse(localStorage.getItem(S)||'null');if(!value||value.version!==1||!Array.isArray(value.pending)||!value.remote?.entries||!value.remote?.weather)throw Error('共有の端末控えを読み取れません。バックアップを保存してください');return value}
+ function atomic(values){const old=Object.fromEntries(Object.keys(values).map(k=>[k,localStorage.getItem(k)]));try{for(const [k,v]of Object.entries(values))localStorage.setItem(k,v)}catch(error){for(const [k,v]of Object.entries(old))try{v===null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch{}throw Error('端末の保存容量が不足しています。バックアップを保存してください')}}
+ const uid=()=> 'env_'+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+'_'+Math.random().toString(36).slice(2));
+ function persist(state){atomic({[S]:JSON.stringify(state),[K]:JSON.stringify(C.project('entries',state)),[W]:JSON.stringify(C.project('weather',state))});window.dispatchEvent(new Event('environment-local-state'))}
+ function append(state,kind,before,after){state.pending.push({opId:uid(),kind,id:(after||before)[kind==='entries'?'id':'date'],before:C.clone(before),after:C.clone(after)})}
+ function initialize(){if(localStorage.getItem(S)){read();return}const rawK=localStorage.getItem(K)||'[]',rawW=localStorage.getItem(W)||'[]';const entries=C.normalizeEntries(JSON.parse(rawK)),weatherRaw=JSON.parse(rawW),weather=(Array.isArray(weatherRaw)?weatherRaw:weatherRaw?.date?[weatherRaw]:[]).map(C.compactWeather);const state={version:1,pending:[],remote:{entries:{},weather:{}}};entries.forEach(e=>append(state,'entries',null,e));weather.forEach(w=>append(state,'weather',null,w));const backup=localStorage.getItem(B)||JSON.stringify({app:'農業日誌AI',backupFormat:'agri-diary-json',version:3,exportedAt:new Date().toISOString(),timeline:JSON.parse(rawK),weather:weatherRaw});atomic({[B]:backup,[S]:JSON.stringify(state),[K]:JSON.stringify(entries),[W]:JSON.stringify(weather)})}
+ try{initialize()}catch(e){startupError=e;console.error(e)}
+ function ensure(){if(startupError)throw startupError}
+ function changed(kind,next){ensure();const state=read(),before=C.project(kind,state),key=kind==='entries'?'id':'date',a=new Map(before.map(x=>[x[key],x])),b=new Map(next.map(x=>[x[key],x]));for(const [id,old]of a)if(!b.has(id))append(state,kind,old,null);for(const [id,value]of b)if(C.canonical(a.get(id)??null)!==C.canonical(value))append(state,kind,a.get(id)??null,value);return state}
+ function setEntries(next){const normalized=C.normalizeEntries(next);persist(changed('entries',normalized))}
+ function setWeather(next){persist(changed('weather',next.map(C.compactWeather)))}
+ function restore(entries,weather){ensure();const a=C.normalizeEntries(entries),b=weather.map(C.compactWeather);const state=read();for(const [kind,next]of [['entries',a],['weather',b]]){const key=kind==='entries'?'id':'date',old=new Map(C.project(kind,state).map(x=>[x[key],x])),map=new Map(next.map(x=>[x[key],x]));for(const [id,value]of old)if(!map.has(id))append(state,kind,value,null);for(const [id,value]of map)if(C.canonical(old.get(id)??null)!==C.canonical(value))append(state,kind,old.get(id)??null,value)}persist(state)}
+ function receive(kind,items){ensure();const state=read();for(const [id,value]of items){if(!Number.isSafeInteger(value.revision)||value.revision<1||!C.validValue(kind,id,value.deleted?null:value.value))throw Error('共有記録の形式を確認してください');if((state.remote[kind][id]?.revision||0)<=value.revision)state.remote[kind][id]=value}persist(state)}
+ function acknowledge(op,result){ensure();const state=read();if(result.revision>0&&(state.remote[op.kind][op.id]?.revision||0)<=result.revision)state.remote[op.kind][op.id]=result;state.pending=state.pending.filter(p=>p.opId!==op.opId);persist(state)}
+ function resolve(op,useLocal,current){const state=read();const desired=C.project(op.kind,state).find(x=>x[op.kind==='entries'?'id':'date']===op.id)||null;if(current&&(state.remote[op.kind][op.id]?.revision||0)<=current.revision)state.remote[op.kind][op.id]=current;state.pending=state.pending.filter(p=>p.kind!==op.kind||p.id!==op.id);if(useLocal&&C.canonical(current?.deleted?null:current?.value??null)!==C.canonical(desired))append(state,op.kind,current?.deleted?null:current?.value??null,desired);persist(state)}
+ return {uid,setEntries,setWeather,restore,receive,acknowledge,resolve,state:()=>{ensure();return read()},getError:()=>startupError,backupKey:B};
+})();
+
+</script>
 <script>
 const LAT=35.838, LON=140.667;
 const KEY="agri_timeline_v1";
@@ -161,7 +200,7 @@ function loadEntries(){
 function saveAll(entries){
   const all=JSON.parse(localStorage.getItem(KEY)||"[]");
   const others=all.filter(x=>x.date!==todayKey());
-  localStorage.setItem(KEY,JSON.stringify(others.concat(entries)));
+  EnvStore.setEntries(others.concat(entries));
 }
 
 function classify(text){
@@ -222,7 +261,7 @@ function saveEntry(){
   if(!text){alert("記録する内容を入力してください。");return;}
   const now=new Date();
   const entry={
-    id:Date.now(),
+    id:EnvStore.uid(),
     date:todayKey(),
     time:pad(now.getHours())+":"+pad(now.getMinutes()),
     text,
@@ -231,12 +270,12 @@ function saveEntry(){
   };
   const entries=loadEntries();
   entries.push(entry);
-  entries.sort((a,b)=>a.id-b.id);
-  saveAll(entries);
+  entries.sort((a,b)=>a.time.localeCompare(b.time)||String(a.id).localeCompare(String(b.id)));
+  try{saveAll(entries)}catch(error){document.getElementById('saveStatus').textContent='保存できません：'+error.message;return}
   el.value="";
   render();
   updateTodaySummary();
-  document.getElementById("saveStatus").textContent="保存しました。今日のタイムラインで確認できます。";
+  document.getElementById("saveStatus").textContent="端末に保存しました。共有状態は画面上部で確認してください。";
 }
 
 function render(){
@@ -250,23 +289,23 @@ function render(){
     <div class="entry">
       <div class="time">${e.time}</div>
       <div class="entry-body">
-        <div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div>
+        <div class="tags">🏷 ${(e.cats||["その他"]).map(escapeHtml).join("・")}</div>
         <div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text)}</div>
         ${measurementHtml(e)}${tagsHtml(e)}
         <div class="original">${e.type==="measurement"?"棟別の計測値として保存":"元の音声・入力内容をそのまま保存"}</div>
-        <button class="delete" onclick="deleteEntry(${e.id})">削除</button>
+        <button class="delete" onclick="deleteEntry(${escapeHtml(JSON.stringify(String(e.id)))})">削除</button>
       </div>
     </div>`).join("");
 }
 function deleteEntry(id){
   if(!confirm("この記録を削除しますか？"))return;
-  saveAll(loadEntries().filter(e=>e.id!==id));
+  try{saveAll(loadEntries().filter(e=>e.id!==id))}catch(error){alert('削除を保存できません：'+error.message);return}
   render();
 }
 function clearAll(){
   if(!loadEntries().length)return;
   if(!confirm("今日の記録をすべて削除しますか？"))return;
-  saveAll([]);
+  try{saveAll([])}catch(error){alert('削除を保存できません：'+error.message);return}
   render();
 }
 function clearMemo(){document.getElementById("memo").value=""}
@@ -292,12 +331,15 @@ function selectDateFromPicker(date){
   selectedHistoryDate=date;
   document.getElementById("selectedDateLabel").textContent=dateLabel(date);
   showHistoryDate(date);
+  renderHistoryWeather();
+  ensureWeatherDay(date);
 }
 function showHistoryDate(date){
-  const box=document.getElementById("historyDetail"),es=allEntries().filter(e=>e.date===date).sort((a,b)=>(a.id||0)-(b.id||0));
+  const box=document.getElementById("historyDetail"),es=allEntries().filter(e=>e.date===date).sort((a,b)=>String(a.time||'').localeCompare(String(b.time||''))||String(a.id).localeCompare(String(b.id)));
   let h=`<div class="history-title">📝 この日のタイムライン</div>`;
-  h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text||"")}</div>${measurementHtml(e)}${tagsHtml(e)}</div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
+  h+=es.length?es.map(e=>`<div class="entry"><div class="time">${e.time||"—"}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).map(escapeHtml).join("・")}</div><div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text||"")}</div>${measurementHtml(e)}${tagsHtml(e)}</div></div>`).join(""):`<div class="empty">この日の農業日誌はありません。</div>`;
   box.innerHTML=h;
+  renderHistoryWeather();
 }
 
 function searchEntries(){
@@ -310,7 +352,7 @@ function searchEntries(){
   }).sort((a,b)=>((b.date||"")+" "+(b.time||"")).localeCompare((a.date||"")+" "+(a.time||"")));
   if(!results.length){box.innerHTML=`<div class="empty">「${escapeHtml(q)}」に一致する記録はありません。</div>`;return;}
   box.innerHTML=`<div class="result-meta">${results.length}件見つかりました</div>`+
-    results.map(e=>`<div class="entry"><div class="time">${escapeHtml(e.date||"")}<br>${escapeHtml(e.time||"—")}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).join("・")}</div><div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text||"")}</div>${measurementHtml(e)}${tagsHtml(e)}</div></div>`).join("");
+    results.map(e=>`<div class="entry"><div class="time">${escapeHtml(e.date||"")}<br>${escapeHtml(e.time||"—")}</div><div class="entry-body"><div class="tags">🏷 ${(e.cats||["その他"]).map(escapeHtml).join("・")}</div><div class="text">${escapeHtml(e.type==="measurement"?(e.memo||""):e.text||"")}</div>${measurementHtml(e)}${tagsHtml(e)}</div></div>`).join("");
 }
 
 function backupData(){
@@ -408,14 +450,13 @@ function restoreData(input){
         return;
       }
 
-      localStorage.setItem(KEY,JSON.stringify(timeline));
-      localStorage.setItem(WEATHER_KEY,JSON.stringify(weather));
+      EnvStore.restore(timeline,weather);
 
       // 保存直後に読み戻して確認
       const checkTimeline=JSON.parse(localStorage.getItem(KEY)||"[]");
       const checkWeather=JSON.parse(localStorage.getItem(WEATHER_KEY)||"[]");
 
-      if(!Array.isArray(checkTimeline) || checkTimeline.length!==timeline.length){
+      if(!Array.isArray(checkTimeline) || checkTimeline.length!==EnvCore.normalizeEntries(timeline).length){
         throw new Error("農業日誌データの保存確認に失敗しました。");
       }
 
@@ -442,103 +483,18 @@ function restoreData(input){
   reader.readAsText(file,"utf-8");
 }
 
-async function loadWeather(){
-  const box=document.getElementById("weather");
-  document.getElementById("source").textContent="Open-Meteo（JMAモデル）から取得中…";
-  try{
-    const date=todayKey();
-    const url=`https://api.open-meteo.com/v1/jma?latitude=${LAT}&longitude=${LON}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&hourly=weather_code,temperature_2m,precipitation,rain,relative_humidity_2m&timezone=Asia%2FTokyo&start_date=${date}&end_date=${date}`;
-    const r=await fetch(url);
-    const d=await r.json();
+const weatherRequests=new Map();
+function dayOffset(day,n){const d=new Date(day+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+function weatherHTML(record){if(!record)return '<div>この日の気象データは未取得です。</div>';const d=record.data?.daily||{},val=k=>d[k]?.[0],fmt=(x,u,n=1)=>x==null||!Number.isFinite(Number(x))?'—':Number(x).toFixed(n)+' '+u;return '<div><b>天気</b><span>'+escapeHtml(String(record.summary?.weather||weatherLabel(val('weather_code'))))+'</span></div><div><b>最高気温</b><span>'+fmt(val('temperature_2m_max'),'℃')+'</span></div><div><b>最低気温</b><span>'+fmt(val('temperature_2m_min'),'℃')+'</span></div><div><b>降水量</b><span>'+fmt(val('precipitation_sum'),'mm')+'</span></div><div><b>平均湿度</b><span>'+fmt(record.avg,'%',0)+'</span></div>'}
+function drawWeather(day,target,source){const record=allWeather().find(w=>w.date===day);const box=document.getElementById(target),caption=document.getElementById(source);if(!box||!caption)return;box.innerHTML=weatherHTML(record);caption.textContent=record?dateLabel(day)+'：'+record.source+'（東庄町近郊）'+(day===todayKey()?'／本日分は予報を含みます':'／気象モデル・解析値'):'未取得：日付を選ぶと自動取得します。'}
+function renderHistoryWeather(){drawWeather(selectedHistoryDate,'historyWeather','historyWeatherSource')}
+function summarizeWeather(data,index){const day=data.daily?.time?.[index];if(!EnvCore.validDay(day)||data.daily.temperature_2m_max?.[index]==null||data.daily.temperature_2m_min?.[index]==null)throw Error('この日の気象はまだ提供されていません');const hourly=data.hourly||{},times=hourly.time||[],indices=times.map((time,i)=>time.startsWith(day)?i:-1).filter(i=>i>=0),values=k=>indices.map(i=>hourly[k]?.[i]).filter(v=>v!=null&&Number.isFinite(v));const codes=values('weather_code'),humidity=values('relative_humidity_2m'),rain=values('precipitation');const clear=codes.filter(c=>c===0||c===1).length,cloudy=codes.filter(c=>c===2||c===3).length,wet=codes.filter(c=>[51,53,55,61,63,65,80,81,82,95,96,99].includes(c)).length,thunder=codes.some(c=>[95,96,99].includes(c)),snow=codes.filter(c=>[71,73,75].includes(c)).length;let weather=weatherLabel(data.daily.weather_code?.[index]);if(codes.length){if(thunder)weather='雷雨あり';else if(snow>=2)weather='雪';else if(wet){weather=clear>=codes.length/2&&wet<=4?'晴れ・一時雨':wet>=codes.length/2?'雨':clear>cloudy&&clear>wet?'晴れ・雨あり':'曇り・雨あり'}else weather=clear>=codes.length*.6?'晴れ':cloudy>=codes.length*.6?'曇り':clear>cloudy?'晴れ・一部曇り':'曇り・一部晴れ'}const daily={};for(const key of ['time','weather_code','temperature_2m_max','temperature_2m_min','precipitation_sum'])daily[key]=[data.daily[key]?.[index]??null];return {date:day,data:{daily},avg:humidity.length?humidity.reduce((a,b)=>a+b,0)/humidity.length:null,summary:{weather,totalRain:data.daily.precipitation_sum?.[index]??null,maxRain:rain.length?Math.max(...rain):null},source:'Open-Meteo',fetchedAt:new Date().toISOString(),complete:day<todayKey()}}
+async function fetchWeatherRange(start,end,endpoint){const params=new URLSearchParams({latitude:LAT,longitude:LON,timezone:'Asia/Tokyo',start_date:start,end_date:end,daily:'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum',hourly:'weather_code,precipitation,relative_humidity_2m'});const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);try{const response=await fetch(endpoint+'?'+params,{signal:controller.signal});if(!response.ok)throw Error('HTTP '+response.status);const data=await response.json();if(data.error||!Array.isArray(data.daily?.time))throw Error(data.reason||'気象データがありません');return data.daily.time.flatMap((day,i)=>{try{const r=summarizeWeather(data,i);r.source=endpoint.includes('archive')?'Open-Meteo／過去気象':endpoint.includes('/jma')?'Open-Meteo／JMAモデル':'Open-Meteo／直近の気象';return [r]}catch{return []}})}finally{clearTimeout(timer)}}
+function saveWeatherRecords(incoming,onlyMissing=false){const map=new Map(allWeather().map(w=>[w.date,w]));for(const w of incoming)if(!onlyMissing||!map.has(w.date)||!map.get(w.date).complete&&w.date<todayKey())map.set(w.date,w);EnvStore.setWeather([...map.values()].sort((a,b)=>a.date.localeCompare(b.date)));drawWeather(todayKey(),'weather','source');renderHistoryWeather()}
+async function ensureWeatherDay(day,force=false){if(!EnvCore.validDay(day)||day>todayKey()){if(day===selectedHistoryDate)document.getElementById('historyWeatherSource').textContent='未来の日付の気象履歴はありません。';return}const saved=allWeather().find(w=>w.date===day);if(!force&&saved&&(day===todayKey()||saved.complete)){renderHistoryWeather();return}if(weatherRequests.has(day))return weatherRequests.get(day);const job=(async()=>{const source=day===todayKey()?'source':'historyWeatherSource';if(day===todayKey()||day===selectedHistoryDate)document.getElementById(source).textContent=dateLabel(day)+'の気象を取得中…';try{const endpoint=day===todayKey()?'https://api.open-meteo.com/v1/jma':day>=dayOffset(todayKey(),-7)?'https://api.open-meteo.com/v1/forecast':'https://archive-api.open-meteo.com/v1/archive';let result=await fetchWeatherRange(day,day,endpoint);if(!result.some(r=>r.date===day)&&day>=dayOffset(todayKey(),-92)&&day<todayKey())result=await fetchWeatherRange(day,day,'https://api.open-meteo.com/v1/forecast');if(!result.some(r=>r.date===day))throw Error('この日の気象はまだ提供されていません');saveWeatherRecords(result)}catch(error){if(day===todayKey()||day===selectedHistoryDate)document.getElementById(source).textContent='取得できませんでした：'+error.message+(saved?'。保存済みの値を表示しています。':'。通信と気象の提供期間を確認してください。')}finally{weatherRequests.delete(day)}})();weatherRequests.set(day,job);return job}
+async function loadWeather(){drawWeather(todayKey(),'weather','source');return ensureWeatherDay(todayKey(),true)}
+async function backfillWeather(){try{const today=todayKey(),yesterday=dayOffset(today,-1),dates=allEntries().map(e=>e.date).filter(d=>d<=yesterday),earliest=dates.length?dates.sort()[0]:dayOffset(today,-7),start=earliest<dayOffset(today,-90)?dayOffset(today,-90):earliest>dayOffset(today,-7)?dayOffset(today,-7):earliest,boundary=dayOffset(today,-7);const map=new Map(allWeather().map(w=>[w.date,w]));const missing=[];for(let d=start;d<=yesterday;d=dayOffset(d,1))if(!map.has(d)||!map.get(d).complete)missing.push(d);for(const historical of [true,false]){const group=missing.filter(d=>historical?d<boundary:d>=boundary);if(!group.length)continue;for(let a=group[0];a<=group.at(-1);a=dayOffset(a,31)){const b=dayOffset(a,30)<group.at(-1)?dayOffset(a,30):group.at(-1);try{saveWeatherRecords(await fetchWeatherRange(a,b,historical?'https://archive-api.open-meteo.com/v1/archive':'https://api.open-meteo.com/v1/forecast'),true)}catch(e){console.warn('過去気象は次の起動時に再取得します',e)}}}}catch(error){console.warn(error)}}
 
-    const labels={
-      0:"快晴",1:"晴れ",2:"一部曇り",3:"曇り",45:"霧",48:"霧",
-      51:"弱い霧雨",53:"霧雨",55:"強い霧雨",61:"弱い雨",63:"雨",
-      65:"強い雨",71:"弱い雪",73:"雪",75:"強い雪",80:"にわか雨",
-      81:"にわか雨",82:"強いにわか雨",95:"雷雨",96:"雷雨",99:"雷雨"
-    };
-
-    const hc=d.hourly.weather_code||[];
-    const hp=d.hourly.precipitation||[];
-    const hr=d.hourly.rain||[];
-    const hh=d.hourly.relative_humidity_2m||[];
-
-    // 1日の天気は「daily weather_code」だけでなく、時間帯データから判断。
-    // 晴れが大半なら「晴れ」を優先し、雨・雷雨などの重要な変化は補足する。
-    const counts={};
-    hc.forEach(c=>{ if(c!=null) counts[c]=(counts[c]||0)+1; });
-
-    const totalHours=hc.length||1;
-    const clearHours=(counts[0]||0)+(counts[1]||0);
-    const cloudyHours=(counts[2]||0)+(counts[3]||0);
-    const rainHours=hc.filter(c=>[51,53,55,61,63,65,80,81,82,95,96,99].includes(c)).length;
-    const thunderHours=hc.filter(c=>[95,96,99].includes(c)).length;
-    const snowHours=hc.filter(c=>[71,73,75].includes(c)).length;
-    const maxRain=Math.max(0,...hp.filter(v=>v!=null));
-    const totalRain=d.daily.precipitation_sum[0] ?? 0;
-
-    let mainWeather;
-    if(thunderHours>0){
-      mainWeather="雷雨あり";
-    }else if(snowHours>0 && snowHours>=2){
-      mainWeather="雪";
-    }else if(rainHours>0){
-      if(clearHours >= totalHours*0.5 && rainHours <= 4){
-        mainWeather="晴れ・一時雨";
-      }else if(clearHours > cloudyHours && clearHours > rainHours){
-        mainWeather="晴れ・雨あり";
-      }else if(rainHours >= totalHours*0.5){
-        mainWeather="雨";
-      }else{
-        mainWeather="曇り・雨あり";
-      }
-    }else if(clearHours >= totalHours*0.6){
-      mainWeather="晴れ";
-    }else if(cloudyHours >= totalHours*0.6){
-      mainWeather="曇り";
-    }else if(clearHours > cloudyHours){
-      mainWeather="晴れ・一部曇り";
-    }else{
-      mainWeather="曇り・一部晴れ";
-    }
-
-    // 日中の代表的な変化を補足（表示を長くしすぎない）
-    const notes=[];
-    if(totalRain>0) notes.push(`降雨${Number(totalRain).toFixed(1)}mm`);
-    if(maxRain>=10) notes.push("強い雨の時間あり");
-
-    const hum=hh.filter(v=>v!=null);
-    const avg=hum.length?hum.reduce((a,b)=>a+b,0)/hum.length:null;
-
-    box.innerHTML=`
-      <div><b>天気</b><span>${mainWeather}</span></div>
-      <div><b>最高気温</b><span>${d.daily.temperature_2m_max[0]} ℃</span></div>
-      <div><b>最低気温</b><span>${d.daily.temperature_2m_min[0]} ℃</span></div>
-      <div><b>降水量</b><span>${Number(totalRain).toFixed(1)} mm</span></div>
-      <div><b>平均湿度</b><span>${avg!=null?avg.toFixed(0):"—"} %</span></div>`;
-
-    const list=JSON.parse(localStorage.getItem(WEATHER_KEY)||"[]").filter(x=>x.date!==date);
-    list.push({
-      date,
-      data:d,
-      avg,
-      summary:{
-        weather:mainWeather,
-        clearHours,cloudyHours,rainHours,thunderHours,snowHours,
-        totalRain,maxRain,notes
-      }
-    });
-    localStorage.setItem(WEATHER_KEY,JSON.stringify(list));
-
-    showHistoryDate(selectedHistoryDate);
-    document.getElementById("source").textContent="気象データ：Open-Meteo / JMAモデル（時間帯データを考慮）";
-  }catch(e){
-    document.getElementById("source").textContent="気象データを取得できませんでした。通信状態を確認してください。";
-  }
-}
-document.getElementById("selectedDateLabel").textContent=dateLabel(selectedHistoryDate);
-showHistoryDate(selectedHistoryDate);
-loadWeather();
 </script>
 <script>
 function updateTodaySummary(){
@@ -556,12 +512,11 @@ function showView(name){
  if(name==='today')render();
  if(name==='history')showHistoryDate(selectedHistoryDate);
  if(name==='home')updateTodaySummary();
+ if(name==='history')ensureWeatherDay(selectedHistoryDate);
  window.scrollTo(0,0);
  if(name==='record')document.getElementById('saveStatus').textContent='';
 }
 document.getElementById('workToday').textContent=dateLabel(todayKey());
-updateTodaySummary();
-render();
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{
  document.body.style.paddingBottom=(document.getElementById('nav').getBoundingClientRect().height+24)+'px';
 }).observe(document.getElementById('nav'));
@@ -582,7 +537,7 @@ function resetMeasurements(ask){
 function measurementHtml(e){
  if(e.type!=='measurement'||!Array.isArray(e.measurements))return '';
  const value=v=>v==null?'—':escapeHtml(String(v));
- return '<table class="measure-table"><caption>棟別の計測値</caption><thead><tr><th scope="col">棟</th><th scope="col">pH</th><th scope="col">EC<br>mS/cm</th><th scope="col">水温<br>℃</th></tr></thead><tbody>'+e.measurements.map(m=>'<tr><th scope="row">'+value(m.house)+'棟目</th><td>'+value(m.ph)+'</td><td>'+value(m.ec)+'</td><td>'+value(m.waterTemp)+'</td></tr>').join('')+'</tbody></table><button type="button" class="light measure-edit" onclick="editMeasurement('+Number(e.id)+')">計測値を修正</button>';
+ return '<table class="measure-table"><caption>棟別の計測値</caption><thead><tr><th scope="col">棟</th><th scope="col">pH</th><th scope="col">EC<br>mS/cm</th><th scope="col">水温<br>℃</th></tr></thead><tbody>'+e.measurements.map(m=>'<tr><th scope="row">'+value(m.house)+'棟目</th><td>'+value(m.ph)+'</td><td>'+value(m.ec)+'</td><td>'+value(m.waterTemp)+'</td></tr>').join('')+'</tbody></table><button type="button" class="light measure-edit" onclick="editMeasurement('+JSON.stringify(String(e.id)).replaceAll('"','&quot;')+')">計測値を修正</button>';
 }
 function saveMeasurements(){
  const status=document.getElementById('measureStatus');
@@ -606,18 +561,18 @@ function saveMeasurements(){
  const memo=document.getElementById('measureMemo').value.trim(),all=allEntries();
  const index=measurementEditId===null?-1:all.findIndex(e=>e.id===measurementEditId);
  if(measurementEditId!==null&&index<0)throw Error('修正対象の記録が見つかりません。履歴を確認してください。');
- const id=index<0?all.reduce((max,e)=>Math.max(max,Number(e.id)||0),Date.now())+1:measurementEditId;
+ const id=index<0?EnvStore.uid():measurementEditId;
  const text=measurements.map(m=>m.house+'棟目：pH '+(m.ph??'未計測')+' / EC '+(m.ec??'未計測')+' mS/cm / 水温 '+(m.waterTemp??'未計測')+' ℃').join('\n')+(memo?'\nメモ：'+memo:'');
  const entry={...(index<0?{}:all[index]),id,date,time,type:'measurement',measurements,memo,text,cats:['栽培','計測'],tags:['計測','pH','EC','水温',...measurements.map(m=>m.house+'棟目')]};
  if(index<0)all.push(entry);else all[index]=entry;
- localStorage.setItem(KEY,JSON.stringify(all));
+ EnvStore.setEntries(all);
  const edited=index>=0;
  resetMeasurements(false);
  selectedHistoryDate=date;
  document.getElementById('selectedDateLabel').textContent=dateLabel(date);
  showHistoryDate(date);render();updateTodaySummary();
  if(document.getElementById('searchInput').value.trim())searchEntries();
- status.textContent=(edited?'計測値を修正しました。':'計測値を保存しました。')+dateLabel(date)+' '+time+'・'+measurements.length+'棟分。';
+ status.textContent=(edited?'計測値を修正しました。':'計測値を端末に保存しました。')+dateLabel(date)+' '+time+'・'+measurements.length+'棟分。共有状態は画面上部で確認してください。';
  }catch(error){status.textContent='保存できません：'+error.message;}
 }
 function editMeasurement(id){
@@ -665,8 +620,52 @@ resetMeasurements(false);
  },true);
 })();
 </script>
+<script>
+try{document.getElementById('selectedDateLabel').textContent=dateLabel(selectedHistoryDate);showHistoryDate(selectedHistoryDate);render();updateTodaySummary();drawWeather(todayKey(),'weather','source');loadWeather().then(backfillWeather);}catch(e){document.getElementById('envSyncStatus').textContent='記録の読み込みを確認してください：'+e.message;}
+window.addEventListener('environment-local-state',()=>{if(document.getElementById('envSyncDetail')){try{const n=EnvStore.state().pending.length;document.getElementById('envSyncDetail').textContent='未共有の変更：'+n+'件。養液測定・日誌・保存した気象を同じGoogleアカウントで共有します。'}catch{}}});
+</script>
+<script type="module" id="environment-cloud">
+(async()=>{
+ const C=EnvCore,S=EnvStore,$=id=>document.getElementById(id),OWNER='ZSbRiqTgDyVBxKf4SJTN5k1KiQP2';
+ let user=null,epoch=0,busy=false,ready=false,conflict=null,unsubs=[],received=new Set(),lastError='';
+ const count=()=>{try{return S.state().pending.length}catch{return 0}};
+ function status(text){$('envSyncStatus').textContent=text;$('envSyncDetail').textContent=lastError||('未共有の変更：'+count()+'件。養液測定・日誌・保存した気象を同じGoogleアカウントで共有します。');$('envSyncButton').textContent=user&&ready&&!busy&&!count()&&!conflict&&!lastError?'共有保存済み':user?'共有を確認':'端末保存';}
+ function repaint(){try{render();updateTodaySummary();showHistoryDate(selectedHistoryDate);renderHistoryWeather();drawWeather(todayKey(),'weather','source');if($('searchInput').value.trim())searchEntries()}catch(e){console.warn(e)}}
+ function changeStatus(){if(S.getError()){status(S.getError().message);return}if(conflict){status('別端末の変更あり：内容を確認してください');return}if(lastError){status('共有を確認できません');return}if(!user){status('端末内に保存中：共有にはGoogleログインが必要です');return}if(!navigator.onLine){status('オフライン：変更を端末に保持しています');return}if(!ready){status('共有内容を読み込み中…');return}status(busy?'共有に保存中…':count()?'端末に保存済み・共有へ送信待ち':'共有保存済み')}
+ window.addEventListener('environment-local-state',()=>{changeStatus();flush()});
+ window.environmentSaveMessage=()=>count()?'端末に保存しました。共有状態を確認してください。':'共有保存済みです。';
+ $('envSyncButton').onclick=()=>{showView('settings');$('envSyncSettings').scrollIntoView({block:'start',behavior:'smooth'})};
+ function showConflict(op,current){conflict={op,current};if(current)S.receive(op.kind,[[op.id,current]]);$('envConflict').hidden=false;const local=S.state().pending.filter(p=>p.kind===op.kind&&p.id===op.id).at(-1)?.after??null;$('envConflictLocal').textContent=JSON.stringify(local,null,2);$('envConflictRemote').textContent=JSON.stringify(current?.deleted?null:current?.value??null,null,2);changeStatus()}
+ function resolve(useLocal){if(!conflict)return;const {op,current}=conflict;S.resolve(op,useLocal,current);conflict=null;$('envConflict').hidden=true;repaint();changeStatus();flush()}
+ $('envKeepLocal').onclick=()=>resolve(true);$('envKeepRemote').onclick=()=>resolve(false);
+ if(S.getError()){lastError=S.getError().message;changeStatus();return}
+ try{
+ const [app,authSDK,dbSDK]=await Promise.all([import('https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js'),import('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js')]);
+ const config={apiKey:'AIzaSyCKSWObv6oueliMX7bRhTTsAy3nS065Zvg',authDomain:'farm-ai-system.firebaseapp.com',projectId:'farm-ai-system',storageBucket:'farm-ai-system.firebasestorage.app',messagingSenderId:'469927403647',appId:'1:469927403647:web:cd05e7ddc50d33ac169f4a'};
+ const auth=authSDK.getAuth(app.initializeApp(config)),db=dbSDK.getFirestore();
+ function decode(kind,id,data){if(data.schemaVersion!==1||!Number.isSafeInteger(data.revision)||data.revision<1||typeof data.payloadJson!=='string'||typeof data.deleted!=='boolean')throw Error('共有記録の形式が違います');const value=JSON.parse(data.payloadJson);if(data.deleted&&value!==null||!data.deleted&&value===null||!C.validValue(kind,id,value))throw Error('共有記録の形式が違います');return {value,deleted:data.deleted,revision:data.revision}}
+ function fail(error){ready=false;lastError=error.code==='permission-denied'?'Firebaseの養液・日誌用ルールを追加してください。端末の記録は保持しています。':error.message;changeStatus()}
+ function subscribe(){unsubs.forEach(fn=>fn());unsubs=[];received=new Set();ready=false;const token=epoch;for(const kind of ['entries','weather']){const ref=dbSDK.collection(db,'environment_accounts',OWNER,kind);unsubs.push(dbSDK.onSnapshot(ref,{includeMetadataChanges:true},snapshot=>{if(token!==epoch||!user||snapshot.metadata.fromCache||snapshot.metadata.hasPendingWrites)return;try{const items=snapshot.docs.map(doc=>[doc.id,decode(kind,doc.id,doc.data())]);S.receive(kind,items);received.add(kind);ready=received.size===2;lastError='';repaint();changeStatus();flush()}catch(e){fail(e)}},error=>{if(token===epoch)fail(error)}))}}
+ async function flushImpl(){if(busy||!user||!ready||!navigator.onLine||conflict)return;busy=true;const token=epoch;changeStatus();try{while(token===epoch&&user&&navigator.onLine&&ready&&!conflict){const op=S.state().pending[0];if(!op)break;const ref=dbSDK.doc(db,'environment_accounts',OWNER,op.kind,op.id);let current=null;try{const result=await dbSDK.runTransaction(db,async tx=>{const snapshot=await tx.get(ref);if(token!==epoch)throw Error('ログインが変わりました');current=snapshot.exists()?decode(op.kind,op.id,snapshot.data()):null;const next=C.applyRemote(current,op);if(!next.unchanged)tx.set(ref,{schemaVersion:1,revision:next.revision,deleted:next.deleted,payloadJson:C.canonical(next.value),updatedAt:dbSDK.serverTimestamp()});return next});if(token!==epoch)return;S.acknowledge(op,result);lastError='';}catch(error){if(token!==epoch)return;if(error.code==='env/conflict'){showConflict(op,current);return}lastError=error.code==='permission-denied'?'Firebaseの養液・日誌用ルールを追加してください。':error.message;return}}}finally{busy=false;if(token===epoch){repaint();changeStatus()}}}
+ window.environmentFlush=flushImpl;
+ $('envLogin').onclick=async()=>{try{lastError='';await authSDK.signInWithPopup(auth,new authSDK.GoogleAuthProvider())}catch(e){if(e.code==='auth/popup-blocked'){try{await authSDK.signInWithRedirect(auth,new authSDK.GoogleAuthProvider())}catch(error){lastError=error.message}}else lastError=e.message;changeStatus()}};
+ $('envLogout').onclick=async()=>{if(busy){alert('共有保存が終わってから操作してください');return}await authSDK.signOut(auth)};
+ $('envRetry').onclick=()=>{lastError='';if(user&&!ready)subscribe();else flush();changeStatus()};
+ authSDK.getRedirectResult(auth).catch(e=>{lastError=e.message;changeStatus()});
+ authSDK.onAuthStateChanged(auth,u=>{epoch++;unsubs.forEach(fn=>fn());unsubs=[];user=u?.uid===OWNER?u:null;ready=false;lastError=u&&!user?'ほかのアプリと同じGoogleアカウントを選択してください。':'';$('envLogin').hidden=!!user;$('envLogout').hidden=!u;conflict=null;$('envConflict').hidden=true;changeStatus();if(user)subscribe()});
+ window.addEventListener('online',()=>{lastError='';if(user&&!ready)subscribe();else flush();changeStatus();ensureWeatherDay(selectedHistoryDate);backfillWeather()});
+ window.addEventListener('offline',changeStatus);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden){repaint();if(user&&!ready)subscribe();else flush()}});
+ window.addEventListener('storage',event=>{if(['agri_environment_sync_v1','agri_timeline_v1','agri_weather_v1'].includes(event.key)){repaint();changeStatus();flush()}});
+ }catch(error){lastError='共有プログラムを読み込めません。オンラインで再読み込みしてください。'+error.message;changeStatus()}
+ function flush(){window.environmentFlush?.()}
+ changeStatus();
+})();
+
+</script>
 </body>
 </html>
+
 
 
 
