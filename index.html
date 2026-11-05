@@ -73,7 +73,7 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
 .measure-grid small{font-weight:400;font-size:11px}.measure-grid input,.measure-datetime input{display:block;width:100%;min-width:0;max-width:100%;min-height:46px;margin-top:6px;padding:10px 6px;border:1px solid #b9cdbf;border-radius:4px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
 .measure-datetime{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.text{white-space:pre-wrap}.measure-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}.measure-table th,.measure-table td{padding:7px 4px;text-align:left;border-bottom:1px solid var(--line)}.measure-table th{color:#126c3e;font-weight:700}.measure-edit{margin:6px 0}.measure-house:focus-within{border-color:var(--green)}
 @media(max-width:360px){.measure-house{padding:10px 8px}.measure-grid{gap:6px}.measure-grid label{font-size:12px}}
-</style><style>.env-header-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.env-sync-actions{display:flex;flex-wrap:wrap;gap:8px}#envSyncStatus{font-weight:700;color:#126c3e}#envConflict pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}#envConflict[hidden]{display:none!important}header{flex-wrap:wrap}.env-header-actions button{font-size:12px;padding:8px}#envSyncSettings{scroll-margin-top:12px}</style></head>
+</style><style>.env-header-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.env-sync-actions{display:flex;flex-wrap:wrap;gap:8px}#envSyncStatus{font-weight:700;color:#126c3e}#envConflict pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}#envConflict[hidden]{display:none!important}header{flex-wrap:wrap}.env-header-actions button{font-size:12px;padding:8px}#envSyncSettings{scroll-margin-top:12px}</style><style>.temperature-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}.temperature-controls label{font-size:13px;flex:none}.temperature-controls input{font:inherit;min-height:44px;min-width:0;flex:1;width:140px;padding:8px;border:1px solid #b9cdbf;border-radius:4px;background:#fff;color:#18352a}.temperature-controls button{min-width:44px}.temperature-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:10px 0}.temperature-legend span{display:flex;align-items:center;gap:6px}.temperature-legend i{display:inline-block;width:16px;height:3px}.temperature-high{background:#d32f2f}.temperature-low{background:#1976d2}#temperatureChart{width:100%;min-width:0}#temperatureChart svg{display:block;max-width:100%;width:100%;height:260px}#temperatureChart g[role=button]{cursor:pointer}#temperatureChart g[role=button]:focus-visible{outline:2px solid #16834b}#temperatureSelected{font-weight:600;min-height:22px}#temperatureFill{width:100%}#temperatureTableBody td{font-variant-numeric:tabular-nums}</style></head>
 <body>
 <header><div class="app-brand"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11M12 13C4 14 2 9 3 4c6-1 10 3 9 9zM12 10c0-6 4-8 9-7 0 6-3 9-9 9"/></svg><div><h1>農業日誌AI/養液管理</h1><small>日々の作業・気づきを記録</small></div></div><div class="env-header-actions"><button id="envSyncButton" class="light" type="button" onclick="showView('settings')">端末保存</button><button class="light" onclick="showView('settings')">データ管理</button></div></header>
 <main class="app">
@@ -81,7 +81,7 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
   <p id="workToday" class="muted"></p><h2>何を記録しますか？</h2>
   <div class="work-actions">
   <button type="button" class="work-action work-main" onclick="showView('measure')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M8 15h8"/></svg></span><span>養液測定<small>pH・EC・水温をまとめて入力</small></span><span aria-hidden="true">→</span></button><button type="button" class="work-action work-tint" onclick="showView('record')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="15" height="18" rx="1"/><path d="M8 3v18M3 7h4M3 12h4M3 17h4M11 8h6M11 12h6M11 16h4"/></svg></span><span>日誌を記録<small>作業・気づきをそのまま残す</small></span><span aria-hidden="true">→</span></button>
-  <button type="button" class="work-action work-tint" onclick="showView('history')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></span><span>過去の日誌を探す<small>日付・キーワードから確認</small></span><span aria-hidden="true">→</span></button>
+  <button type="button" class="work-action work-tint" onclick="showView('history')"><span><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="M15 15l6 6"/></svg></span><span>過去の日誌を探す<small>日付・キーワード・月別気温から確認</small></span><span aria-hidden="true">→</span></button>
   
   </div>
   <div class="work-last"><span class="muted">今日の記録</span><p id="todaySummary"></p><button class="light" onclick="showView('today')">タイムラインを見る →</button></div>
@@ -122,6 +122,7 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
 </section>
 <section id="history" class="view" hidden>
   <h2>日誌の履歴</h2>
+<div class="card" id="monthlyTemperature"><h3>月別の気温</h3><div class="temperature-controls"><button id="temperaturePrev" class="light" type="button" aria-label="前の月">‹</button><label for="temperatureMonth">対象月</label><input id="temperatureMonth" type="month"><button id="temperatureNext" class="light" type="button" aria-label="次の月">›</button></div><div class="temperature-legend"><span><i class="temperature-high"></i>最高気温</span><span><i class="temperature-low"></i>最低気温</span></div><div id="temperatureChart"></div><p id="temperatureEmpty" class="hint" hidden></p><p id="temperatureSelected" class="hint" aria-live="polite"></p><p id="temperatureCaption" class="hint"></p><button id="temperatureFill" class="light" type="button">気象データを再取得</button><p id="temperatureFetchStatus" class="hint" role="status"></p><details><summary>日ごとの気温を表で見る</summary><table class="measure-table"><thead><tr><th>日</th><th>最高気温</th><th>最低気温</th></tr></thead><tbody id="temperatureTableBody"></tbody></table></details><p class="source">未取得分は対象月を開くと自動取得します。東庄町近郊／Open-Meteoの気象モデル・解析値。未取得日は線が途切れます。未来日は表示しません。</p></div>
   <div class="card"><label class="input-title" for="searchInput">キーワードで探す</label>
   <div class="search-box"><input id="searchInput" type="search" placeholder="例：アザミウマ、コルト、谷下、収穫" onkeydown="if(event.key==='Enter')searchEntries()"><button class="light" onclick="searchEntries()">検索</button></div>
   <div class="hint">本文・日付・カテゴリー・自動タグから検索できます。</div><div id="searchResult" class="search-result" aria-live="polite"></div></div>
@@ -136,7 +137,7 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
   <div class="settings-actions"><button class="light" onclick="backupData()">全データをバックアップ（JSON）</button><button class="light" onclick="document.getElementById('restoreFile').click()">バックアップから復元</button></div>
   <input id="restoreFile" type="file" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
   <p class="hint">記録はこの端末にも保存します。「共有保存済み」を確認するとPC・スマホで共有できます。未共有の変更は通信復帰後に送信します。</p></div>
-  <p class="muted">農業日誌AI・養液／日誌／気象共有版 4.0（2026-11-05）</p>
+  <p class="muted">農業日誌AI・養液／日誌／気象共有版 4.2・月別気温折れ線グラフ（2026-11-05）</p>
 </section>
 </main>
 <nav id="nav" aria-label="メインメニュー">
@@ -512,7 +513,7 @@ function showView(name){
  if(name==='today')render();
  if(name==='history')showHistoryDate(selectedHistoryDate);
  if(name==='home')updateTodaySummary();
- if(name==='history')ensureWeatherDay(selectedHistoryDate);
+ if(name==='history'){ensureWeatherDay(selectedHistoryDate);window.EnvironmentMonthly?.render();window.EnvironmentMonthly?.load();}
  window.scrollTo(0,0);
  if(name==='record')document.getElementById('saveStatus').textContent='';
 }
@@ -663,8 +664,61 @@ window.addEventListener('environment-local-state',()=>{if(document.getElementByI
 })();
 
 </script>
+<script id="monthly-temperature-script">
+(()=>{
+ const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+ const requests=new Map();let selectedDay='',redrawTimer,retryTimer;
+ const finite=value=>value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
+ function daysInMonth(month){if(!/^\d{4}-\d{2}$/.test(month))return [];const [year,m]=month.split('-').map(Number);if(year<1900||year>2199||m<1||m>12)return [];const n=new Date(Date.UTC(year,m,0)).getUTCDate();return Array.from({length:n},(_,i)=>month+'-'+String(i+1).padStart(2,'0'))}
+ function monthRows(month,records,today){const byDate=new Map(records.map(r=>[r.date,r]));return daysInMonth(month).map(date=>{const record=byDate.get(date),daily=record?.data?.daily,max=daily?.temperature_2m_max?.[0],min=daily?.temperature_2m_min?.[0],valid=date<=today&&finite(max)&&finite(min)&&Number(max)>=Number(min);return {date,max:valid?Number(max):null,min:valid?Number(min):null,future:date>today}})}
+ function axisDomain(rows){const values=rows.flatMap(r=>r.max===null?[]:[r.max,r.min]);if(!values.length)return {min:0,max:10,step:5};let lo=Math.min(0,...values),hi=Math.max(0,...values);if(lo===hi)hi=lo+5;const raw=(hi-lo)/5,base=10**Math.floor(Math.log10(raw)),factor=raw/base,step=(factor<=1?1:factor<=2?2:factor<=5?5:10)*base;lo=Math.floor(lo/step)*step;hi=Math.ceil(hi/step)*step;if(lo===hi)hi+=step;return {min:lo,max:hi,step}}
+ function acquisitionRanges(month,records,today){const rows=monthRows(month,records,today),needed=new Set(rows.filter(r=>!r.future&&r.max===null).map(r=>r.date)),boundary=dayOffset(today,-7),plans=[];for(const historical of [true,false]){const days=[...needed].filter(d=>historical?d<boundary:d>=boundary);if(days.length)plans.push({start:days[0],end:days.at(-1),endpoint:historical?'https://archive-api.open-meteo.com/v1/archive':'https://api.open-meteo.com/v1/forecast',dates:days})}return plans}
+ const currentMonth=()=>$('temperatureMonth').value||todayKey().slice(0,7);
+ const fmt=value=>value===null?'未取得':value.toFixed(1)+'℃';
+ function element(tag,attrs={},text){const node=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))node.setAttribute(k,String(v));if(text!==undefined)node.textContent=text;return node}
+ function pick(date){selectedDay=date;selectDateFromPicker(date);render();}
+ function draw(rows){
+ const wrap=$('temperatureChart'),width=Math.max(280,Math.round(wrap.getBoundingClientRect().width)||320),height=260,left=42,right=8,top=24,bottom=34,plotW=width-left-right,plotH=height-top-bottom,domain=axisDomain(rows),y=value=>top+(domain.max-value)/(domain.max-domain.min)*plotH,zero=y(0),step=plotW/(rows.length||1),x=i=>left+(i+.5)*step;
+ const svg=element('svg',{viewBox:`0 0 ${width} ${height}`,width:'100%',height,role:'img','aria-labelledby':'temperatureSvgTitle temperatureSvgDescription'});
+ svg.append(element('title',{id:'temperatureSvgTitle'},currentMonth()+'の日別最高・最低気温'),element('desc',{id:'temperatureSvgDescription'},'横軸は日、縦軸は気温（摂氏）。赤色が最高気温、青色が最低気温。未取得日は線を途切れさせ、未来日は表示しません。日を選ぶと詳しい値と日誌を表示します。'));
+ const selectedIndex=rows.findIndex(row=>row.date===selectedDay);
+ if(selectedIndex>=0)svg.append(element('rect',{x:left+selectedIndex*step,y:top,width:step,height:plotH,fill:'#e6f2e9'}));
+ svg.append(element('text',{x:left,y:14,fill:'#52695b','font-size':12},'気温（℃）'));
+ for(let v=domain.min;v<=domain.max+domain.step*.01;v+=domain.step){const value=Math.abs(v)<1e-8?0:v,yy=y(value);svg.append(element('line',{x1:left,y1:yy,x2:width-right,y2:yy,stroke:value===0?'#849b8c':'#e1e9e3','stroke-width':value===0?1.2:1}),element('text',{x:left-7,y:yy+4,fill:'#52695b','text-anchor':'end','font-size':12},String(Number(value.toFixed(3)))))}
+ for(const [key,color] of [['max','#d32f2f'],['min','#1976d2']]){
+  let path='',connected=false;
+  rows.forEach((row,i)=>{if(row.future||row[key]===null){connected=false;return}path+=(connected?' L ':' M ')+x(i)+' '+y(row[key]);connected=true});
+  svg.append(element('path',{'data-temperature-series':key,d:path.trim(),fill:'none',stroke:color,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+  rows.forEach((row,i)=>{if(!row.future&&row[key]!==null)svg.append(element('circle',{cx:x(i),cy:y(row[key]),r:2.5,fill:color}))});
+ }
+ const tickDays=new Set([1,5,10,15,20,25,rows.length]);
+ for(const [i,row] of rows.entries()){
+  const cx=x(i);if(tickDays.has(i+1))svg.append(element('text',{x:cx,y:height-13,fill:'#52695b','text-anchor':'middle','font-size':12},String(i+1)));
+  if(row.future)continue;
+  const group=element('g',{'data-temperature-day':row.date,role:'button',tabindex:0,'aria-label':dateLabel(row.date)+'、最高 '+fmt(row.max)+'、最低 '+fmt(row.min)});
+  group.append(element('title',{},`${dateLabel(row.date)}　最高 ${fmt(row.max)}／最低 ${fmt(row.min)}`));
+  if(row.max===null)group.append(element('text',{x:cx,y:zero-5,fill:'#7c8e82','text-anchor':'middle','font-size':11},'·'));
+  group.append(element('rect',{x:left+i*step,y:top,width:step,height:plotH,fill:'transparent'}));
+  group.addEventListener('click',()=>pick(row.date));group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();pick(row.date)}});svg.append(group);
+ }
+ svg.append(element('text',{x:width-right,y:height-1,fill:'#52695b','text-anchor':'end','font-size':11},'日'));wrap.replaceChildren(svg)
+ }
+ function render(){const month=currentMonth(),rows=monthRows(month,allWeather(),todayKey()),elapsed=rows.filter(r=>!r.future),available=elapsed.filter(r=>r.max!==null),missing=elapsed.length-available.length;draw(rows);$('temperatureNext').disabled=month>=todayKey().slice(0,7);$('temperatureCaption').textContent=month.replace('-','年')+'月：'+available.length+'日分を表示'+(missing?'／未取得 '+missing+'日':'')+'。当日分は予報を含みます。';if(selectedDay&&!rows.some(r=>r.date===selectedDay))selectedDay='';const row=rows.find(r=>r.date===selectedDay);$('temperatureSelected').textContent=row?dateLabel(row.date)+'　最高 '+fmt(row.max)+' ／ 最低 '+fmt(row.min):'点をタップすると、その日の気温と下の日誌を確認できます。';$('temperatureChart').hidden=!available.length;$('temperatureEmpty').hidden=!!available.length;$('temperatureEmpty').textContent=elapsed.length?'この月の気象データは未取得です。取得できた日から表示します。':'未来の月の気象履歴はありません。';$('temperatureTableBody').replaceChildren(...rows.map(row=>{const tr=document.createElement('tr');for(const value of [String(Number(row.date.slice(-2)))+'日',row.future?'—':fmt(row.max),row.future?'—':fmt(row.min)]){const td=document.createElement('td');td.textContent=value;tr.append(td)}return tr}));return {rows,missing}}
+ async function loadMonth(){clearTimeout(retryTimer);const month=currentMonth();if(!daysInMonth(month).length)return;if(requests.has(month))return requests.get(month);const job=(async()=>{const status=$('temperatureFetchStatus');const {missing}=render();if(!missing){status.textContent='保存済みの月間データを表示しています。';return}if(!navigator.onLine){status.textContent='オフラインです。保存済みの気象だけ表示しています。';return}status.textContent='未取得日の気象を取得中…';if(month===currentMonth())$('temperatureFill').disabled=true;const errors=[];try{for(const plan of acquisitionRanges(month,allWeather(),todayKey())){try{const records=await fetchWeatherRange(plan.start,plan.end,plan.endpoint);const wanted=new Set(plan.dates);const stillMissing=new Set(monthRows(month,allWeather(),todayKey()).filter(r=>!r.future&&r.max===null).map(r=>r.date));saveWeatherRecords(records.filter(r=>wanted.has(r.date)&&stillMissing.has(r.date)&&r.date<=todayKey()),false)}catch(e){errors.push(e.message)}}if(month===currentMonth()){const result=render();status.textContent=result.missing?'未取得 '+result.missing+'日。'+(errors.length?'取得できませんでした：'+errors.join('／'):'提供待ちのため、後ほど自動で再取得します。'):'月間の気象データを取得しました。'}}finally{if(month===currentMonth()){$('temperatureFill').disabled=false;if(monthRows(month,allWeather(),todayKey()).some(r=>!r.future&&r.max===null))retryTimer=setTimeout(()=>{if(!$('history').hidden&&!document.hidden)loadMonth()},60000)}requests.delete(month)}})();requests.set(month,job);try{return await job}finally{requests.delete(month)}}
+ function changeMonth(offset){const [year,m]=currentMonth().split('-').map(Number),d=new Date(Date.UTC(year,m-1+offset,1));$('temperatureMonth').value=d.toISOString().slice(0,7);selectedDay='';render();loadMonth()}
+ $('temperatureMonth').value=todayKey().slice(0,7);$('temperatureMonth').max=todayKey().slice(0,7);$('temperatureMonth').min='1900-01';$('temperatureMonth').onchange=()=>{selectedDay='';$('temperatureFill').disabled=false;render();loadMonth()};$('temperaturePrev').onclick=()=>changeMonth(-1);$('temperatureNext').onclick=()=>changeMonth(1);$('temperatureFill').onclick=loadMonth;
+ window.addEventListener('online',()=>{if(!$('history').hidden)loadMonth()});
+ window.addEventListener('focus',()=>{if(!$('history').hidden&&!document.hidden)loadMonth()});
+ window.EnvironmentMonthly={daysInMonth,monthRows,axisDomain,acquisitionRanges,render,load:loadMonth};
+ window.addEventListener('environment-local-state',()=>{clearTimeout(redrawTimer);redrawTimer=setTimeout(()=>render(),0)});
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>render()).observe($('temperatureChart'));
+ render();
+})();
+
+</script>
 </body>
 </html>
+
 
 
 
