@@ -537,8 +537,8 @@ function resetMeasurements(ask){
 }
 function measurementHtml(e){
  if(e.type!=='measurement'||!Array.isArray(e.measurements))return '';
- const value=v=>v==null?'—':escapeHtml(String(v));
- return '<table class="measure-table"><caption>棟別の計測値</caption><thead><tr><th scope="col">棟</th><th scope="col">pH</th><th scope="col">EC<br>mS/cm</th><th scope="col">水温<br>℃</th></tr></thead><tbody>'+e.measurements.map(m=>'<tr><th scope="row">'+value(m.house)+'棟目</th><td>'+value(m.ph)+'</td><td>'+value(m.ec)+'</td><td>'+value(m.waterTemp)+'</td></tr>').join('')+'</tbody></table><button type="button" class="light measure-edit" onclick="editMeasurement('+JSON.stringify(String(e.id)).replaceAll('"','&quot;')+')">計測値を修正</button>';
+ const value=(v,digits)=>v==null?'—':escapeHtml(digits===undefined?String(v):Number(v).toFixed(digits));
+ return '<table class="measure-table"><caption>棟別の計測値</caption><thead><tr><th scope="col">棟</th><th scope="col">pH</th><th scope="col">EC<br>mS/cm</th><th scope="col">水温<br>℃</th></tr></thead><tbody>'+e.measurements.map(m=>'<tr><th scope="row">'+value(m.house)+'棟目</th><td>'+value(m.ph,1)+'</td><td>'+value(m.ec)+'</td><td>'+value(m.waterTemp)+'</td></tr>').join('')+'</tbody></table><button type="button" class="light measure-edit" onclick="editMeasurement('+JSON.stringify(String(e.id)).replaceAll('"','&quot;')+')">計測値を修正</button>';
 }
 function saveMeasurements(){
  const status=document.getElementById('measureStatus');
