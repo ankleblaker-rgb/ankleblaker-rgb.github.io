@@ -73,7 +73,26 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
 .measure-grid small{font-weight:400;font-size:11px}.measure-grid input,.measure-datetime input{display:block;width:100%;min-width:0;max-width:100%;min-height:46px;margin-top:6px;padding:10px 6px;border:1px solid #b9cdbf;border-radius:4px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
 .measure-datetime{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.text{white-space:pre-wrap}.measure-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}.measure-table th,.measure-table td{padding:7px 4px;text-align:left;border-bottom:1px solid var(--line)}.measure-table th{color:#126c3e;font-weight:700}.measure-edit{margin:6px 0}.measure-house:focus-within{border-color:var(--green)}
 @media(max-width:360px){.measure-house{padding:10px 8px}.measure-grid{gap:6px}.measure-grid label{font-size:12px}}
-</style><style>.env-header-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.env-sync-actions{display:flex;flex-wrap:wrap;gap:8px}#envSyncStatus{font-weight:700;color:#126c3e}#envConflict pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}#envConflict[hidden]{display:none!important}header{flex-wrap:wrap}.env-header-actions button{font-size:12px;padding:8px}#envSyncSettings{scroll-margin-top:12px}</style><style>.temperature-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}.temperature-controls label{font-size:13px;flex:none}.temperature-controls input{font:inherit;min-height:44px;min-width:0;flex:1;width:140px;padding:8px;border:1px solid #b9cdbf;border-radius:4px;background:#fff;color:#18352a}.temperature-controls button{min-width:44px}.temperature-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:10px 0}.temperature-legend span{display:flex;align-items:center;gap:6px}.temperature-legend i{display:inline-block;width:16px;height:3px}.temperature-high{background:#d32f2f}.temperature-low{background:#1976d2}#temperatureChart{width:100%;min-width:0}#temperatureChart svg{display:block;max-width:100%;width:100%;height:260px}#temperatureChart g[role=button]{cursor:pointer}#temperatureChart g[role=button]:focus-visible{outline:2px solid #16834b}#temperatureSelected{font-weight:600;min-height:22px}#temperatureFill{width:100%}#temperatureTableBody td{font-variant-numeric:tabular-nums}</style></head>
+</style><style>.env-header-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.env-sync-actions{display:flex;flex-wrap:wrap;gap:8px}#envSyncStatus{font-weight:700;color:#126c3e}#envConflict pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}#envConflict[hidden]{display:none!important}header{flex-wrap:wrap}.env-header-actions button{font-size:12px;padding:8px}#envSyncSettings{scroll-margin-top:12px}</style><style>.temperature-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}.temperature-controls label{font-size:13px;flex:none}.temperature-controls input{font:inherit;min-height:44px;min-width:0;flex:1;width:140px;padding:8px;border:1px solid #b9cdbf;border-radius:4px;background:#fff;color:#18352a}.temperature-controls button{min-width:44px}.temperature-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin:10px 0}.temperature-legend span{display:flex;align-items:center;gap:6px}.temperature-legend i{display:inline-block;width:16px;height:3px}.temperature-high{background:#d32f2f}.temperature-low{background:#1976d2}#temperatureChart{width:100%;min-width:0}#temperatureChart svg{display:block;max-width:100%;width:100%;height:260px}#temperatureChart g[role=button]{cursor:pointer}#temperatureChart g[role=button]:focus-visible{outline:2px solid #16834b}#temperatureSelected{font-weight:600;min-height:22px}#temperatureFill{width:100%}#temperatureTableBody td{font-variant-numeric:tabular-nums}</style><style id="desktop-work-layout">
+/* Match the shipping app's compact desktop actions and wide records. */
+@media(min-width:720px){
+ .app{max-width:1240px;padding:24px 20px}
+ header{padding-left:max(16px,calc((100vw - 1200px)/2));padding-right:max(16px,calc((100vw - 1200px)/2))}
+ #nav{padding-left:max(12px,calc((100vw - 1240px)/2));padding-right:max(12px,calc((100vw - 1240px)/2))}
+ #measure,#record{max-width:880px;margin-inline:auto}
+
+ #home .work-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+ #home .work-action{min-height:76px;padding:12px 14px;gap:10px;font-size:16px;line-height:1.4}
+ #home .work-action>span:first-child{width:22px}
+ #home .work-action .ui-icon{width:22px;height:22px}
+ #home .work-action small{font-size:12px;margin-top:3px}
+ #history .text,#today .text{font-size:16px}
+ .measure-table{font-size:16px}
+ .measure-table th,.measure-table td{padding:12px 8px}
+ #temperatureChart svg text{font-size:13px}
+}
+</style>
+</head>
 <body>
 <header><div class="app-brand"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11M12 13C4 14 2 9 3 4c6-1 10 3 9 9zM12 10c0-6 4-8 9-7 0 6-3 9-9 9"/></svg><div><h1>農業日誌AI/養液管理</h1><small>日々の作業・気づきを記録</small></div></div><div class="env-header-actions"><button id="envSyncButton" class="light" type="button" onclick="showView('settings')">端末保存</button><button class="light" onclick="showView('settings')">データ管理</button></div></header>
 <main class="app">
@@ -771,6 +790,7 @@ window.addEventListener('environment-local-state',()=>{if(document.getElementByI
 
 </body>
 </html>
+
 
 
 
