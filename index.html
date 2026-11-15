@@ -121,7 +121,19 @@ summary{min-height:44px;padding:10px 0;font-weight:700;cursor:pointer}button:foc
   <details class="card"><summary>今日の記録の管理</summary><button class="delete" onclick="clearAll()">今日の記録を全削除</button></details>
 </section>
 <section id="history" class="view" hidden>
-  <h2>日誌の履歴</h2>
+  <h2>日誌・測定の履歴</h2>
+  <div class="card" id="monthlyMeasurements" aria-labelledby="measurementMonthHeading">
+    <h3 id="measurementMonthHeading">月別の測定履歴</h3>
+    <div class="temperature-controls">
+      <button id="measurementMonthPrev" class="light" type="button" aria-label="測定履歴の前の月">‹</button>
+      <label for="measurementMonth">測定月</label><input id="measurementMonth" type="month" min="1900-01" max="2199-12">
+      <button id="measurementMonthNext" class="light" type="button" aria-label="測定履歴の次の月">›</button>
+    </div>
+    <p id="measurementMonthSummary" class="hint" role="status"></p>
+    <p class="hint">選択した月の測定をすべて、新しい日時順に表示します。</p>
+    <div id="measurementMonthList"></div>
+  </div>
+
 <div class="card" id="monthlyTemperature"><h3>月別の気温</h3><div class="temperature-controls"><button id="temperaturePrev" class="light" type="button" aria-label="前の月">‹</button><label for="temperatureMonth">対象月</label><input id="temperatureMonth" type="month"><button id="temperatureNext" class="light" type="button" aria-label="次の月">›</button></div><div class="temperature-legend"><span><i class="temperature-high"></i>最高気温</span><span><i class="temperature-low"></i>最低気温</span></div><div id="temperatureChart"></div><p id="temperatureEmpty" class="hint" hidden></p><p id="temperatureSelected" class="hint" aria-live="polite"></p><p id="temperatureCaption" class="hint"></p><button id="temperatureFill" class="light" type="button">気象データを再取得</button><p id="temperatureFetchStatus" class="hint" role="status"></p><details><summary>日ごとの気温を表で見る</summary><table class="measure-table"><thead><tr><th>日</th><th>最高気温</th><th>最低気温</th></tr></thead><tbody id="temperatureTableBody"></tbody></table></details><p class="source">未取得分は対象月を開くと自動取得します。東庄町近郊／Open-Meteoの気象モデル・解析値。未取得日は線が途切れます。未来日は表示しません。</p></div>
   <div class="card"><label class="input-title" for="searchInput">キーワードで探す</label>
   <div class="search-box"><input id="searchInput" type="search" placeholder="例：アザミウマ、コルト、谷下、収穫" onkeydown="if(event.key==='Enter')searchEntries()"><button class="light" onclick="searchEntries()">検索</button></div>
@@ -511,7 +523,7 @@ function showView(name){
    else el.removeAttribute('aria-current');
  });
  if(name==='today')render();
- if(name==='history')showHistoryDate(selectedHistoryDate);
+ if(name==='history'){showHistoryDate(selectedHistoryDate);window.EnvironmentMeasurements?.render();}
  if(name==='home')updateTodaySummary();
  if(name==='history'){ensureWeatherDay(selectedHistoryDate);window.EnvironmentMonthly?.render();window.EnvironmentMonthly?.load();}
  window.scrollTo(0,0);
@@ -716,6 +728,47 @@ window.addEventListener('environment-local-state',()=>{if(document.getElementByI
 })();
 
 </script>
+
+<script id="monthly-measurements-script">
+(()=>{
+ const $=id=>document.getElementById(id);
+ const validMonth=month=>/^\d{4}-(0[1-9]|1[0-2])$/.test(month)&&month>='1900-01'&&month<='2199-12';
+ function monthEntries(entries,month){
+  if(!validMonth(month))return [];
+  return entries.filter(e=>e.type==='measurement'&&Array.isArray(e.measurements)&&typeof e.date==='string'&&e.date.startsWith(month+'-'))
+   .sort((a,b)=>b.date.localeCompare(a.date)||String(b.time||'').localeCompare(String(a.time||''))||String(b.id).localeCompare(String(a.id)));
+ }
+ function render(){
+  const month=$('measurementMonth').value;
+  if(!validMonth(month)){
+   $('measurementMonthSummary').textContent='測定月を選択してください。';
+   $('measurementMonthList').innerHTML='';
+   return;
+  }
+  const entries=monthEntries(allEntries(),month),days=new Set(entries.map(e=>e.date)).size;
+  $('measurementMonthSummary').textContent=Number(month.slice(0,4))+'年'+Number(month.slice(5))+'月：測定 '+entries.length+'件（'+days+'日分）';
+  $('measurementMonthPrev').disabled=month==='1900-01';
+  $('measurementMonthNext').disabled=month==='2199-12';
+  $('measurementMonthList').innerHTML=entries.length?entries.map(e=>'<article class="history-detail"><h4 class="history-title">'+escapeHtml(dateLabel(e.date))+' '+escapeHtml(e.time||'—')+'</h4>'+measurementHtml(e)+(e.memo?'<div class="text">'+escapeHtml(e.memo)+'</div>':'')+'</article>').join(''):'<div class="empty">この月の測定記録はありません。</div>';
+ }
+ function changeMonth(offset){
+  const month=$('measurementMonth').value;
+  const from=validMonth(month)?month:todayKey().slice(0,7),[year,m]=from.split('-').map(Number);
+  const next=new Date(Date.UTC(year,m-1+offset,1)).toISOString().slice(0,7);
+  if(!validMonth(next))return;
+  $('measurementMonth').value=next;render();
+ }
+ $('measurementMonth').value=todayKey().slice(0,7);
+ $('measurementMonth').onchange=render;
+ $('measurementMonthPrev').onclick=()=>changeMonth(-1);
+ $('measurementMonthNext').onclick=()=>changeMonth(1);
+ window.addEventListener('environment-local-state',render);
+ window.addEventListener('storage',event=>{if(event.key==='agri_timeline_v1'||event.key===null)render()});
+ window.EnvironmentMeasurements={monthEntries,render};
+ render();
+})();
+</script>
+
 </body>
 </html>
 
